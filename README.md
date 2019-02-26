@@ -4,11 +4,11 @@ This repository contains the accompanying application code the for the blog post
 
 NOTE: Don't use this implementation for production.
 
-### Installation
+### Instructions 
 
 Make sure you are running a python 3 runtime.
 
-`git clone ...`  
+`git clone git@github.com:stefandeml/zokrates_sig_example.git`  
 `pip install -r requirements.txt`  
 `python demo.py`   
 
