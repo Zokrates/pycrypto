@@ -1,0 +1,7 @@
+include
+lib
+share
+src/.ipynb_checkpoints
+*.ipynb
+*.pyc
+.vscode/.ropeproject/config.py
