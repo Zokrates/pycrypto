@@ -1,6 +1,6 @@
 from bitstring import BitArray
 
-from eddsa import *
+from eddsa import to_bytes, PublicKey, PrivateKey 
 from field import FQ
 
 
@@ -23,10 +23,10 @@ def pprint_for_zokrates(pk, sig, msg):
     M1 = msg.hex()[64:]
     s = to_bytes(sig.S).hex()
 
-    for n, h in  zip(['R', 'A', 'M0', 'M1'], [R, A, M0, M1]):
+    for n, h in  zip(['Rx', 'Ax', 'M0', 'M1'], [R, A, M0, M1]):
         pprint_hex(n, h)
 
-    pprint_point('A', pk.pk)
+    pprint_point('A', pk.p)
     pprint_point('R', sig.R)
     pprint_hex('S', s)
 
@@ -44,6 +44,7 @@ if __name__ == "__main__":
     sig = sk.sign(msg)
 
     pk = PublicKey.from_private(sk)
-    pk.verify(sig, msg)
+    res = pk.verify(sig, msg)
+    print(res)
 
     pprint_for_zokrates(pk, sig, msg)
