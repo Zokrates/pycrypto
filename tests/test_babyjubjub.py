@@ -6,8 +6,8 @@ from field import FQ
 from babyjubjub import Point
 from babyjubjub import JUBJUB_E, JUBJUB_C, JUBJUB_L
 
-
 class TestJubjub(unittest.TestCase):
+
 	def _point_g(self):
 		return Point.generator()
 
@@ -35,7 +35,8 @@ class TestJubjub(unittest.TestCase):
 		self.assertEqual(G_mult2, self._point_g_dbl())
 
 	def test_lower_order_p(self):
-		lp = Point(FQ(4342719913949491028786768530115087822524712248835451589697801404893164183326), FQ(4826523245007015323400664741523384119579596407052839571721035538011798951543))
+		lp = Point(FQ(4342719913949491028786768530115087822524712248835451589697801404893164183326), 
+					FQ(4826523245007015323400664741523384119579596407052839571721035538011798951543))
 		lp_c = lp.mult(JUBJUB_C)
 		self.assertEqual(lp_c, Point.infinity())
 		lp_l = lp.mult(JUBJUB_L)
@@ -67,7 +68,7 @@ class TestJubjub(unittest.TestCase):
 
 	def test_identities(self):
 		G = self._point_g()
-		self.assertEquals(G + Point.infinity(), G)
+		self.assertEqual(G + Point.infinity(), G)
 		self.assertEqual(G + G.neg(), Point.infinity())
 
 if __name__ == "__main__":

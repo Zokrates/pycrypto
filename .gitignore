@@ -4,4 +4,6 @@ share
 src/.ipynb_checkpoints
 *.ipynb
 *.pyc
-.vscode/.ropeproject/config.py
+.vscode
+.idea
+.ipynb_checkpoints
