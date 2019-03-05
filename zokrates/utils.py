@@ -42,7 +42,7 @@ def pprint_for_zokrates(pk, sig, msg):
     pprint_fe('S', sig.S)
 
 
-def pprint_for_zokrates_cli(pk, sig, msg):
+def write_for_zokrates_cli(pk, sig, msg, path):
     args = [sig.R.x.n, sig.R.y.n, sig.S.n, pk.p.x.n, pk.p.y.n]
     args = ' '.join(map(str, args))
 
@@ -50,9 +50,11 @@ def pprint_for_zokrates_cli(pk, sig, msg):
     M1 = msg.hex()[64:]
     b0 = BitArray(int(M0, 16).to_bytes(32, 'big')).bin
     b1 = BitArray(int(M1, 16).to_bytes(32, 'big')).bin
-    args = args + ' '.join(b0 + b1)
+    args = args + ' ' + ' '.join(b0 + b1)
 
-    print('./zokrates compute-witness -a ' + args)
+    with open(path, "w+") as file:
+        for l in args:
+            file.write(l)
 
 
 def pprint_hex(n, h):

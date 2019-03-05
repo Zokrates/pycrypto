@@ -2,7 +2,7 @@ import hashlib
 
 from zokrates.eddsa import PrivateKey, PublicKey
 from zokrates.field import FQ
-from zokrates.utils import pprint_for_zokrates_cli
+from zokrates.utils import write_for_zokrates_cli
 
 if __name__ == "__main__":
 
@@ -19,5 +19,5 @@ if __name__ == "__main__":
     is_verified = pk.verify(sig, msg)
     print(is_verified)
 
-    print('Arguments for ZoKrates verifyEddsa proof:')
-    pprint_for_zokrates_cli(pk, sig, msg)
+    path = './zokrates_args'
+    write_for_zokrates_cli(pk, sig, msg, path)
