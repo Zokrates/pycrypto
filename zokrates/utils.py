@@ -1,7 +1,7 @@
 from bitstring import BitArray
 
-from eddsa import Point
-from field import FQ
+from .eddsa import Point
+from .field import FQ
 import hashlib
 
 

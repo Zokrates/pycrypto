@@ -30,9 +30,9 @@ from collections import namedtuple
 from math import ceil, log2
 from os import urandom
 
-from babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
-from field import FQ
-from utils import to_bytes
+from .babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
+from .field import FQ
+from .utils import to_bytes
 
 
 class Signature(object):

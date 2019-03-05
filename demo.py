@@ -1,8 +1,8 @@
 import hashlib
 
-from eddsa import PrivateKey, PublicKey
-from field import FQ
-from utils import pprint_for_zokrates_cli
+from zokrates.eddsa import PrivateKey, PublicKey
+from zokrates.field import FQ
+from zokrates.utils import pprint_for_zokrates_cli
 
 if __name__ == "__main__":
 
