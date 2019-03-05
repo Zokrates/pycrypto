@@ -1,41 +1,14 @@
-from bitstring import BitArray
 
-from eddsa import to_bytes, PublicKey, PrivateKey 
+import hashlib
+
+from eddsa import PrivateKey, PublicKey
 from field import FQ
+from utils import pprint_for_zokrates_cli
 
-
-def pprint_hex(n, h):
-    b = BitArray(int(h, 16).to_bytes(32, 'big')).bin
-    s =  '[' + ', '.join(b) + '] \n'
-    print('field[256] {} = {} \n'.format(n, s))
-
-
-def pprint_point(n, p):
-    x, y = p
-    print('field[2] {} = [{}, {}] \n'.format(n, x, y))
-
-
-def pprint_for_zokrates(pk, sig, msg):
-
-    A = to_bytes(pk).hex()
-    R = to_bytes(sig.R).hex()
-    M0 = msg.hex()[:64]
-    M1 = msg.hex()[64:]
-    s = to_bytes(sig.S).hex()
-
-    for n, h in  zip(['Rx', 'Ax', 'M0', 'M1'], [R, A, M0, M1]):
-        pprint_hex(n, h)
-
-    pprint_point('A', pk.p)
-    pprint_point('R', sig.R)
-    pprint_hex('S', s)
-
-    
 if __name__ == "__main__":
 
-    # Define message as 512bit, could be as SHA512 output
-    msg = bytes.fromhex('00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05')
+    raw_msg = b'ZoKrates rullez'
+    msg = hashlib.sha512(raw_msg).digest()
 
     # sk = PrivateKey.from_rand()
     # Seeded for debug purpose
@@ -44,7 +17,8 @@ if __name__ == "__main__":
     sig = sk.sign(msg)
 
     pk = PublicKey.from_private(sk)
-    res = pk.verify(sig, msg)
-    print(res)
+    isVerified = pk.verify(sig, msg)
+    print(isVerified)
 
-    pprint_for_zokrates(pk, sig, msg)
+    print('Arguments for ZoKrates verifyEddsa proof:')
+    pprint_for_zokrates_cli(pk, sig, msg)

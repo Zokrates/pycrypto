@@ -48,7 +48,7 @@ class TestJubjub(unittest.TestCase):
 		A = G.mult(a)
 		B = G.mult(b)
 
-		ab = (a.n * b.n) % JUBJUB_E # 56088 
+		ab = (a.n * b.n) % JUBJUB_E # 7006652 
 		AB = G.mult(ab)
 		self.assertEqual(A.mult(b), AB)
 		self.assertEqual(B.mult(a), AB)

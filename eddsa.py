@@ -30,11 +30,9 @@ from collections import namedtuple
 from math import ceil, log2
 from os import urandom
 
-import bitstring
-from bitstring import BitArray
-
 from babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
 from field import FQ
+from utils import to_bytes
 
 class Signature(object):
     __slots__ = ('R', 'S')
@@ -120,26 +118,3 @@ def hash_to_scalar(*args):
     digest = hashlib.sha256(p).digest()
     # bRAM = BitArray(digest).bin[3:]
     return int(digest.hex(), 16) #% JUBJUB_E # JUBJUB_E check not necessary any more
-
-"""
-Helper function that defines byte representation for objects used in this module
-"""
-def to_bytes(*args):
-    result = b''
-    for M in args:
-        if isinstance(M, Point):
-            result += to_bytes(M.x)
-            # result += to_bytes(M.y)
-        elif isinstance(M, FQ):
-            result += to_bytes(M.n)
-        elif isinstance(M, int):
-            result += M.to_bytes(32, 'big')
-        elif isinstance(M, bitstring.BitArray):
-            result += M.tobytes()
-        elif isinstance(M, bytes):
-            result += M
-        elif isinstance(M, (list, tuple)):
-            result += b''.join(to_bytes(_) for _ in M)
-        else:
-            raise TypeError("Bad type for M: " + str(type(M)))
-    return result
