@@ -19,10 +19,9 @@ JUBJUB_D = 168696  # Coefficient D
 class Point(namedtuple('_Point', ('x', 'y'))):
     def valid(self):
         """
-		Satisfies the relationship
-
-			ax^2 + y^2 = 1 + d x^2 y^2
-		"""
+        Satisfies the relationship
+            ax^2 + y^2 = 1 + d x^2 y^2
+        """
         xsq = self.x * self.x
         ysq = self.y * self.y
         return (JUBJUB_A * xsq) + ysq == (1 + JUBJUB_D * xsq * ysq)
@@ -54,8 +53,8 @@ class Point(namedtuple('_Point', ('x', 'y'))):
 
     def neg(self):
         """
-		Twisted Edwards Curves, BBJLP-2008, section 2 pg 2
-		"""
+        Twisted Edwards Curves, BBJLP-2008, section 2 pg 2
+        """
         return Point(-self.x, self.y)
 
     @classmethod
