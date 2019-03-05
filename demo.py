@@ -1,4 +1,3 @@
-
 import hashlib
 
 from eddsa import PrivateKey, PublicKey
@@ -17,8 +16,8 @@ if __name__ == "__main__":
     sig = sk.sign(msg)
 
     pk = PublicKey.from_private(sk)
-    isVerified = pk.verify(sig, msg)
-    print(isVerified)
+    is_verified = pk.verify(sig, msg)
+    print(is_verified)
 
     print('Arguments for ZoKrates verifyEddsa proof:')
     pprint_for_zokrates_cli(pk, sig, msg)

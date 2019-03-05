@@ -34,8 +34,10 @@ from babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
 from field import FQ
 from utils import to_bytes
 
+
 class Signature(object):
     __slots__ = ('R', 'S')
+
     def __init__(self, R, S):
         self.R = R if isinstance(R, Point) else Point(*R)
         self.S = S if isinstance(S, FQ) else FQ(S)
@@ -46,43 +48,48 @@ class Signature(object):
     def __str__(self):
         return ' '.join(str(_) for _ in [self.R.x, self.R.y, self.S])
 
-"""
-Wrapps field element
-"""
+
 class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
+    """
+    Wrapps field element
+    """
+
     @classmethod
     def from_rand(cls):
         mod = JUBJUB_L
         nbytes = ceil(ceil(log2(mod)) / 8) + 1
         rand_n = int.from_bytes(urandom(nbytes), 'little')
         return cls(rand_n)
-    
+
     def sign(self, msg, B=None):
         B = B or Point.generator()
 
-        A = PublicKey.from_private(self) # A = kB
+        A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = hash_to_scalar(self.fe, M)       # r = H(k,M) mod L
-        R = B.mult(r)                         # R = rB
+        r = hash_to_scalar(self.fe, M)  # r = H(k,M) mod L
+        R = B.mult(r)  # R = rB
 
-        hRAM = hash_to_scalar(R, A, M)      # Bind the message to the nonce, public key and message
+        hRAM = hash_to_scalar(
+            R, A, M)  # Bind the message to the nonce, public key and message
         key_field = self.fe.n
-        S = (r + (key_field * hRAM)) % JUBJUB_E    # r + (H(R,A,M) * k)
+        S = (r + (key_field * hRAM)) % JUBJUB_E  # r + (H(R,A,M) * k)
 
         return Signature(R, S)
 
-"""
-Wrapps edwards point 
-"""
+
 class PublicKey(namedtuple('_PublicKey', ('p'))):
+    """
+    Wrapps edwards point 
+    """
+
     @classmethod
     def from_private(cls, sk, B=None):
         B = B or Point.generator()
         if not isinstance(sk, PrivateKey):
             sk = PrivateKey(sk)
         A = B.mult(sk.fe)
-        return cls(A) 
+        return cls(A)
 
     def verify(self, sig, msg, B=None):
         B = B or Point.generator()
@@ -98,23 +105,25 @@ class PublicKey(namedtuple('_PublicKey', ('p'))):
         hRAM = hash_to_scalar(R, A, M)
         rhs = R + (A.mult(hRAM))
 
-        return lhs == rhs 
+        return lhs == rhs
 
-"""
-Hash the key and message to create `r`, the blinding factor for this signature.
 
-If the same `r` value is used more than once, the key for the signature is revealed.
-
-From: https://eprint.iacr.org/2015/677.pdf (EdDSA for more curves)
-
-Page 3:
-
-    (Implementation detail: To save time in the computation of `rB`, the signer
-    can replace `r` with `r mod L` before computing `rB`.)
-"""
 def hash_to_scalar(*args):
+    """
+    Hash the key and message to create `r`, the blinding factor for this signature.
+
+    If the same `r` value is used more than once, the key for the signature is revealed.
+
+    From: https://eprint.iacr.org/2015/677.pdf (EdDSA for more curves)
+
+    Page 3:
+
+        (Implementation detail: To save time in the computation of `rB`, the signer
+        can replace `r` with `r mod L` before computing `rB`.)
+    """
     # print('\n'.join(to_bytes(_).hex() for _ in  args))
-    p = b''.join(to_bytes(_) for _ in  args)
+    p = b''.join(to_bytes(_) for _ in args)
     digest = hashlib.sha256(p).digest()
     # bRAM = BitArray(digest).bin[3:]
-    return int(digest.hex(), 16) #% JUBJUB_E # JUBJUB_E check not necessary any more
+    return int(digest.hex(),
+               16)  #% JUBJUB_E # JUBJUB_E check not necessary any more
