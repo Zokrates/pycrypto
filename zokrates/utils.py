@@ -43,12 +43,7 @@ def pprint_for_zokrates(pk, sig, msg):
 
 
 def pprint_for_zokrates_cli(pk, sig, msg):
-    args = []
-    args.append(sig.R.x.n)
-    args.append(sig.R.y.n)
-    args.append(sig.S.n)
-    args.append(pk.p.x.n)
-    args.append(pk.p.y.n)
+    args = [sig.R.x.n, sig.R.y.n, sig.S.n, pk.p.x.n, pk.p.y.n]
     args = ' '.join(map(str, args))
 
     M0 = msg.hex()[:64]

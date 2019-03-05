@@ -6,8 +6,8 @@ from zokrates.utils import pprint_for_zokrates_cli
 
 if __name__ == "__main__":
 
-    raw_msg = b'ZoKrates rullez'
-    msg = hashlib.sha512(raw_msg).digest()
+    raw_msg = "This is my secret message" 
+    msg = hashlib.sha512(raw_msg.encode("utf-8")).digest()
 
     # sk = PrivateKey.from_rand()
     # Seeded for debug purpose

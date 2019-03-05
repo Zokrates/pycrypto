@@ -51,7 +51,7 @@ class Signature(object):
 
 class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
     """
-    Wrapps field element
+    Wraps field element
     """
 
     @classmethod
@@ -80,7 +80,7 @@ class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
 
 class PublicKey(namedtuple('_PublicKey', ('p'))):
     """
-    Wrapps edwards point 
+    Wraps edwards point 
     """
 
     @classmethod
