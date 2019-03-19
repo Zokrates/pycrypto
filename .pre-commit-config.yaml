@@ -1,0 +1,27 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.1.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-case-conflict
+    -   id: check-json
+    -   id: pretty-format-json
+    -   id: check-merge-conflict
+    -   id: detect-private-key
+    -   id: check-added-large-files
+    -   id: name-tests-test
+    -   id: debug-statements
+    -   id: requirements-txt-fixer
+    -   id: flake8
+        args: [., --count, --select=E901,E999,F821,F822,F823, --show-source, --statistics]
+-   repo: https://github.com/stefandeml/pre_commit_hooks
+    rev: master
+    hooks:
+    -   id: detect_tab
+-   repo: https://github.com/ambv/black
+    rev: stable
+    hooks:
+    -   id: black
+        language_version: python3.6
