@@ -95,18 +95,8 @@ class PublicKey(namedtuple("_PublicKey", ("p"))):
 def hash_to_scalar(*args):
     """
     Hash the key and message to create `r`, the blinding factor for this signature.
-
     If the same `r` value is used more than once, the key for the signature is revealed.
-
-    From: https://eprint.iacr.org/2015/677.pdf (EdDSA for more curves)
-
-    Page 3:
-
-        (Implementation detail: To save time in the computation of `rB`, the signer
-        can replace `r` with `r mod L` before computing `rB`.)
     """
-    # print('\n'.join(to_bytes(_).hex() for _ in  args))
     p = b"".join(to_bytes(_) for _ in args)
     digest = hashlib.sha256(p).digest()
-    # bRAM = BitArray(digest).bin[3:]
-    return int(digest.hex(), 16)  # JUBJUB_E check not necessary any more
+    return int(digest.hex(), 16)  # mod JUBJUB_E here for optimised implementation
