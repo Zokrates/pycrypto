@@ -8,15 +8,17 @@ described in the paper "Twisted Edwards Curves Revisited":
 from collections import namedtuple
 from .field import FQ
 
-JUBJUB_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583  # order of the field
-JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328  # order of the curve
+# order of the field
+JUBJUB_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583
+# order of the curve
+JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328
 JUBJUB_C = 8  # Cofactor
 JUBJUB_L = JUBJUB_E // JUBJUB_C  # C*L == E
 JUBJUB_A = 168700  # Coefficient A
 JUBJUB_D = 168696  # Coefficient D
 
 
-class Point(namedtuple('_Point', ('x', 'y'))):
+class Point(namedtuple("_Point", ("x", "y"))):
     def valid(self):
         """
         Satisfies the relationship
@@ -33,8 +35,7 @@ class Point(namedtuple('_Point', ('x', 'y'))):
         (u1, v1) = (self.x, self.y)
         (u2, v2) = (other.x, other.y)
         u3 = (u1 * v2 + v1 * u2) / (FQ.one() + JUBJUB_D * u1 * u2 * v1 * v2)
-        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (
-            FQ.one() - JUBJUB_D * u1 * u2 * v1 * v2)
+        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (FQ.one() - JUBJUB_D * u1 * u2 * v1 * v2)
         return Point(u3, v3)
 
     def mult(self, scalar):
@@ -68,7 +69,7 @@ class Point(namedtuple('_Point', ('x', 'y'))):
         return Point(FQ(0), FQ(1))
 
     def __str__(self):
-        return 'x: {}, y:{}'.format(*self)
+        return "x: {}, y:{}".format(*self)
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y

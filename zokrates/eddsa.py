@@ -35,21 +35,7 @@ from .field import FQ
 from .utils import to_bytes
 
 
-class Signature(object):
-    __slots__ = ('R', 'S')
-
-    def __init__(self, R, S):
-        self.R = R if isinstance(R, Point) else Point(*R)
-        self.S = S if isinstance(S, FQ) else FQ(S)
-
-    def __iter__(self):
-        return iter([self.R, self.S])
-
-    def __str__(self):
-        return ' '.join(str(_) for _ in [self.R.x, self.R.y, self.S])
-
-
-class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
+class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
     """
     Wraps field element
     """
@@ -58,7 +44,7 @@ class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
     def from_rand(cls):
         mod = JUBJUB_L
         nbytes = ceil(ceil(log2(mod)) / 8) + 1
-        rand_n = int.from_bytes(urandom(nbytes), 'little')
+        rand_n = int.from_bytes(urandom(nbytes), "little")
         return cls(rand_n)
 
     def sign(self, msg, B=None):
@@ -71,16 +57,17 @@ class PrivateKey(namedtuple('_PrivateKey', ('fe'))):
         R = B.mult(r)  # R = rB
 
         hRAM = hash_to_scalar(
-            R, A, M)  # Bind the message to the nonce, public key and message
+            R, A, M
+        )  # Bind the message to the nonce, public key and message
         key_field = self.fe.n
         S = (r + (key_field * hRAM)) % JUBJUB_E  # r + (H(R,A,M) * k)
 
-        return Signature(R, S)
+        return (R, S)
 
 
-class PublicKey(namedtuple('_PublicKey', ('p'))):
+class PublicKey(namedtuple("_PublicKey", ("p"))):
     """
-    Wraps edwards point 
+    Wraps edwards point
     """
 
     @classmethod
@@ -93,8 +80,6 @@ class PublicKey(namedtuple('_PublicKey', ('p'))):
 
     def verify(self, sig, msg, B=None):
         B = B or Point.generator()
-        if not isinstance(sig, Signature):
-            sig = Signature(*sig)
 
         R, S = sig
         M = msg
@@ -122,8 +107,7 @@ def hash_to_scalar(*args):
         can replace `r` with `r mod L` before computing `rB`.)
     """
     # print('\n'.join(to_bytes(_).hex() for _ in  args))
-    p = b''.join(to_bytes(_) for _ in args)
+    p = b"".join(to_bytes(_) for _ in args)
     digest = hashlib.sha256(p).digest()
     # bRAM = BitArray(digest).bin[3:]
-    return int(digest.hex(),
-               16)  #% JUBJUB_E # JUBJUB_E check not necessary any more
+    return int(digest.hex(), 16)  # JUBJUB_E check not necessary any more
