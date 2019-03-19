@@ -8,3 +8,4 @@ src/.ipynb_checkpoints
 .idea
 .ipynb_checkpoints
 env
+zokrates_args

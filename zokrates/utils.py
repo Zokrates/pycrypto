@@ -34,16 +34,19 @@ def pprint_for_zokrates(pk, sig, msg):
     M0 = msg.hex()[:64]
     M1 = msg.hex()[64:]
 
+    sig_R, sig_S = sig
     for n, h in zip(["M0", "M1"], [M0, M1]):
         pprint_hex(n, h)
 
     pprint_point("A", pk.p)
-    pprint_point("R", sig.R)
-    pprint_fe("S", sig.S)
+    pprint_point("R", sig_R)
+    pprint_fe("S", sig_S)
 
 
 def write_for_zokrates_cli(pk, sig, msg, path):
-    args = [sig.R.x.n, sig.R.y.n, sig.S.n, pk.p.x.n, pk.p.y.n]
+
+    sig_R, sig_S = sig
+    args = [sig_R.x, sig_R.y, sig_S, pk.p.x.n, pk.p.y.n]
     args = " ".join(map(str, args))
 
     M0 = msg.hex()[:64]

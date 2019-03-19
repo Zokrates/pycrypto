@@ -1,21 +1,50 @@
-# Zero Knowledge Signature Verification  
+# Zero Knowledge Signature Verification
 
 This repository contains the accompanying application code the for the blog post xxxxxxxx.
 
 NOTE: Don't use this implementation for production.
 
-### Instructions 
+### Instructions
 
 Make sure you are running a python 3 runtime.
 
-`git clone git@github.com:stefandeml/zokrates_sig_example.git`  
-`pip install -r requirements.txt`  
-`python demo.py`   
+```bash
+git clone git@github.com:stefandeml/zokrates_sig_example.git
+pip install -r requirements.txt
+```
 
-You should get the following output:
+Let's create a simple demo, called `demo.py`:
+
+```python
+import hashlib
+
+from zokrates.eddsa import PrivateKey, PublicKey
+from zokrates.field import FQ
+from zokrates.utils import write_for_zokrates_cli
+
+if __name__ == "__main__":
+
+    raw_msg = "This is my secret message"
+    msg = hashlib.sha512(raw_msg.encode("utf-8")).digest()
+
+    # sk = PrivateKey.from_rand()
+    # Seeded for debug purpose
+    key = FQ(1997011358982923168928344992199991480689546837621580239342656433234255379025)
+    sk = PrivateKey(key)
+    sig = sk.sign(msg)
+
+    pk = PublicKey.from_private(sk)
+    is_verified = pk.verify(sig, msg)
+    print(is_verified)
+
+    path = './zokrates_args'
+    write_for_zokrates_cli(pk, sig, msg, path)
+```
+
+We can now can run this python script via:
 
 ```bash
-True
-Arguments for ZoKrates verifyEddsa proof:
-./zokrates compute-witness -a 12496864272140266306514264569729064961672269791019560133672722923773674889599 18432279846390199684826396219478674059577838103634850240692041162355141363982 19971441365761781078706452323381911885830371235015393914454172575066047769616 14897476871502190904409029696666322856887678969656209656241038339251270171395 166688324590468589289516229514812528341552541517330029840535012540099018761741 1 0 0 0 1 1 0 0 0 0 0 1 1 0 1 1 1 0 0 1 1 1 0 1 1 1 0 1 0 0 1 0 1 0 1 0 1 1 1 0 0 1 0 1 1 1 0 1 1 1 0 1 0 1 0 1 1 1 1 1 0 0 1 1 0 1 1 0 1 1 1 0 0 1 0 0 1 0 1 0 1 1 0 1 1 0 1 1 1 0 0 1 0 1 1 0 1 0 0 1 0 0 1 0 0 1 1 1 1 1 0 0 0 0 0 0 1 1 0 0 1 0 1 1 1 0 0 1 1 1 1 0 0 0 0 1 1 0 1 1 1 0 1 0 1 0 0 1 1 1 1 0 1 1 0 0 1 0 0 1 0 0 0 1 1 0 0 1 0 0 0 0 1 1 1 1 1 0 0 0 0 0 0 0 1 0 1 0 1 1 0 1 0 0 1 1 0 0 1 1 1 1 0 1 0 0 0 1 0 0 1 0 1 1 1 0 1 1 1 0 1 0 1 0 0 0 0 1 0 1 0 0 1 1 1 0 0 0 1 0 0 1 1 0 0 1 0 1 0 1 1 0 1 0 1 1 0 0 1 0 1 1 1 0 0 0 0 0 0 0 1 1 0 1 1 1 1 0 0 1 1 1 0 0 0 0 1 1 1 1 0 0 0 0 1 1 1 1 1 1 1 1 1 1 0 1 0 1 1 0 1 0 0 0 0 1 1 1 0 1 1 0 1 0 0 1 1 0 1 1 0 1 0 0 1 0 1 0 1 1 0 0 0 1 1 1 1 0 1 1 0 1 1 0 0 0 1 0 0 0 1 1 1 1 1 0 0 0 1 1 0 0 1 1 0 1 1 0 1 0 0 1 0 0 1 1 1 0 0 0 0 0 1 0 1 1 0 0 0 1 1 0 0 0 1 0 0 1 1 1 0 0 1 0 0 1 1 1 0 0 1 0 0 1 1 0 0 0 1 0 0 0 1 0 0 1 0 1 1 1 1 1 0 0 1 1 1 0 0 1 1 1 0 0 0 0 0 0 1 1 0 0 1 1 0 0 0 0 0 0 1 0 0 1 1 0 0 0 0 0 0 1 0 0 1 0 0 1 1 1 1 0 1 0 1 1 1 1 0 0 0 0 0 0 0 0 1 0 0 1 1
- ```
+python demo.py
+````
+
+which should create a file called `zokrates_args`.

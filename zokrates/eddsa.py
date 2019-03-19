@@ -56,9 +56,8 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
         r = hash_to_scalar(self.fe, M)  # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
-        hRAM = hash_to_scalar(
-            R, A, M
-        )  # Bind the message to the nonce, public key and message
+        # Bind the message to the nonce, public key and message
+        hRAM = hash_to_scalar(R, A, M)
         key_field = self.fe.n
         S = (r + (key_field * hRAM)) % JUBJUB_E  # r + (H(R,A,M) * k)
 
