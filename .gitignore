@@ -7,3 +7,4 @@ src/.ipynb_checkpoints
 .vscode
 .idea
 .ipynb_checkpoints
+env
