@@ -17,11 +17,11 @@ repos:
     -   id: flake8
         args: [., --count, --select=E901,E999,F821,F822,F823, --show-source, --statistics]
 -   repo: https://github.com/stefandeml/pre_commit_hooks
-    rev: master
+    rev: 8bf53ac6d9ca447f633f7a318063479d01f4fc4a
     hooks:
     -   id: detect_tab
 -   repo: https://github.com/ambv/black
-    rev: stable
+    rev: 19.3b0
     hooks:
     -   id: black
         language_version: python3.6
