@@ -108,7 +108,7 @@ class Point(namedtuple("_Point", ("x", "y"))):
         ax2 = JUBJUB_A * xsq
         dxsqm1 = inv(JUBJUB_D * xsq - 1, JUBJUB_Q)
         ysq = dxsqm1 * (ax2 - 1)
-        y = square_root_mod_prime(ysq, JUBJUB_Q)
+        y = FQ(square_root_mod_prime(int(ysq), JUBJUB_Q))
         return cls(x, y)
 
     @classmethod
@@ -121,7 +121,7 @@ class Point(namedtuple("_Point", ("x", "y"))):
         lhs = ysq - 1
         rhs = JUBJUB_D * ysq - JUBJUB_A
         xsq = lhs / rhs
-        x = square_root_mod_prime(xsq, JUBJUB_Q)
+        x = FQ(square_root_mod_prime(int(xsq), JUBJUB_Q))
         if sign is not None:
             # Used for compress & decompress
             if (x.n & 1) != sign:
