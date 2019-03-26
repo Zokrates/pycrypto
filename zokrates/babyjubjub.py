@@ -8,7 +8,8 @@ based on: https://github.com/HarryR/ethsnarks
 """
 
 from collections import namedtuple
-from .field import FQ, field_modulus
+from .field import FQ, inv, field_modulus
+from .numbertheory import square_root_mod_prime, SquareRootError
 
 # order of the field
 JUBJUB_Q = field_modulus
@@ -18,6 +19,11 @@ JUBJUB_C = 8  # Cofactor
 JUBJUB_L = JUBJUB_E // JUBJUB_C  # C*L == E
 JUBJUB_A = 168700  # Coefficient A
 JUBJUB_D = 168696  # Coefficient D
+
+
+def is_negative(v):
+    assert isinstance(v, FQ)
+    return v.n < (-v).n
 
 
 class Point(namedtuple("_Point", ("x", "y"))):
@@ -90,3 +96,75 @@ class Point(namedtuple("_Point", ("x", "y"))):
 
     def double(self):
         return self.add(self)
+
+    @classmethod
+    def from_x(cls, x):
+        """
+        y^2 = ((a * x^2) / (d * x^2 - 1)) - (1 / (d * x^2 - 1))
+        For every x coordinate, there are two possible points: (x, y) and (x, -y)
+        """
+        assert isinstance(x, FQ)
+        xsq = x * x
+        ax2 = JUBJUB_A * xsq
+        dxsqm1 = inv(JUBJUB_D * xsq - 1, JUBJUB_Q)
+        ysq = dxsqm1 * (ax2 - 1)
+        y = square_root_mod_prime(ysq, JUBJUB_Q)
+        return cls(x, y)
+
+    @classmethod
+    def from_y(cls, y, sign=None):
+        """
+        x^2 = (y^2 - 1) / (d * y^2 - a)
+        """
+        assert isinstance(y, FQ)
+        ysq = y * y
+        lhs = ysq - 1
+        rhs = JUBJUB_D * ysq - JUBJUB_A
+        xsq = lhs / rhs
+        x = square_root_mod_prime(xsq, JUBJUB_Q)
+        if sign is not None:
+            # Used for compress & decompress
+            if (x.n & 1) != sign:
+                x = -x
+        else:
+            if is_negative(x):
+                x = -x
+        return cls(x, y)
+
+    @classmethod
+    def from_hash(cls, entropy):
+        """
+        HashToPoint (or Point.from_hash)
+        Hashes the input entropy and interprets the result as the Y coordinate
+        then recovers the X coordinate, if no valid point can be recovered
+        Y is incremented until a matching X coordinate is found.
+        The point is guaranteed to be prime order and not the identity.
+        From: https://datatracker.ietf.org/doc/draft-irtf-cfrg-hash-to-curve/?include_text=1
+        Page 6:
+           o  HashToBase(x, i).  This method is parametrized by p and H, where p
+              is the prime order of the base field Fp, and H is a cryptographic
+              hash function which outputs at least floor(log2(p)) + 2 bits.  The
+              function first hashes x, converts the result to an integer, and
+              reduces modulo p to give an element of Fp.
+        """
+        from hashlib import sha256
+
+        assert isinstance(entropy, bytes)
+        entropy = sha256(entropy).digest()
+        entropy_as_int = int.from_bytes(entropy, "big")
+        y = FQ(entropy_as_int)
+        while True:
+            try:
+                p = cls.from_y(y)
+            except SquareRootError:
+                y += 1
+                continue
+
+            # Multiply point by cofactor, ensures it's on the prime-order subgroup
+            p = p * JUBJUB_C
+
+            # Verify point is on prime-ordered sub-group
+            if (p * JUBJUB_L) != Point.infinity():
+                raise RuntimeError("Point not on prime-ordered subgroup")
+
+            return p
