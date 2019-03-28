@@ -1,28 +1,32 @@
 """
-This module implements a EdDSA signature:
+This module implements EdDSA (https://en.wikipedia.org/wiki/EdDSA) signing and verification
 
-The signer has two secret values:
+1) the signer has two secret values:
 
     * k = Secret key
     * r = Per-(message,key) nonce
 
-The signer provides a signature consiting of two values:
+2) the signer provides the verifier with their public key:
+
+    * A = k*B
+
+3) the signer provides a signature consisting of two values:
 
     * R = Point, image of `r*B`
     * s = Image of `r + (k*t)`
 
-The signer provides the verifier with their public key:
-
-    * A = k*B
-
-Both the verifier and the signer calculate the common reference string:
-
+The value `t` denotes the common reference string used by both parties:
     * t = H(R, A, M)
+where H() denotes a cryptographic hash function, SHA256 in this implementation.
 
-The nonce `r` is secret, and protects the value `s` from revealing the
+The nonce `r` is  a random secret, and protects the value `s` from revealing the
 signers secret key.
 
-For further information see: https://ed2519.cr.yp.to/eddsa-20150704.pdf
+4) the verifier can check the following statement:
+    `S*B = R + t*A`
+
+For further information see: https://eprint.iacr.org/2015/677.pdf
+based on: https://github.com/HarryR/ethsnarks
 """
 
 import hashlib
@@ -48,6 +52,7 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
         return cls(rand_n)
 
     def sign(self, msg, B=None):
+        "Returns the signature (R,S) for a given private key and message."
         B = B or Point.generator()
 
         A = PublicKey.from_private(self)  # A = kB
@@ -71,6 +76,7 @@ class PublicKey(namedtuple("_PublicKey", ("p"))):
 
     @classmethod
     def from_private(cls, sk, B=None):
+        "Returns public key for a private key. B denotes the group generator"
         B = B or Point.generator()
         if not isinstance(sk, PrivateKey):
             sk = PrivateKey(sk)
@@ -96,7 +102,10 @@ def hash_to_scalar(*args):
     """
     Hash the key and message to create `r`, the blinding factor for this signature.
     If the same `r` value is used more than once, the key for the signature is revealed.
+
+    Note that we take the entire 256bit hash digest as input for the scalar multiplication.
+    As the group is only of size JUBJUB_E (<256bit) we allow wrapping around the group modulo.
     """
     p = b"".join(to_bytes(_) for _ in args)
     digest = hashlib.sha256(p).digest()
-    return int(digest.hex(), 16)  # mod JUBJUB_E here for optimised implementation
+    return int(digest.hex(), 16)  # mod JUBJUB_E here for optimized implementation

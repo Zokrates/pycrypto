@@ -3,13 +3,15 @@ This module implements the extended twisted edwards and extended affine coordina
 described in the paper "Twisted Edwards Curves Revisited":
  - https://iacr.org/archive/asiacrypt2008/53500329/53500329.pdf
    Huseyin Hisil, Kenneth Koon-Ho Wong, Gary Carter, and Ed Dawson
+
+based on: https://github.com/HarryR/ethsnarks
 """
 
 from collections import namedtuple
-from .field import FQ
+from .field import FQ, field_modulus
 
 # order of the field
-JUBJUB_Q = 21888242871839275222246405745257275088696311157297823662689037894645226208583
+JUBJUB_Q = field_modulus
 # order of the curve
 JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328
 JUBJUB_C = 8  # Cofactor

@@ -6,9 +6,7 @@ import hashlib
 
 
 def to_bytes(*args):
-    """
-    Helper function that returns byte representation for objects used in this module
-    """
+    "Returns byte representation for objects used in this module."
     result = b""
     for M in args:
         if isinstance(M, Point):
@@ -29,22 +27,8 @@ def to_bytes(*args):
     return result
 
 
-def pprint_for_zokrates(pk, sig, msg):
-
-    M0 = msg.hex()[:64]
-    M1 = msg.hex()[64:]
-
-    sig_R, sig_S = sig
-    for n, h in zip(["M0", "M1"], [M0, M1]):
-        pprint_hex(n, h)
-
-    pprint_point("A", pk.p)
-    pprint_point("R", sig_R)
-    pprint_fe("S", sig_S)
-
-
-def write_for_zokrates_cli(pk, sig, msg, path):
-
+def write_signature_for_zokrates_cli(pk, sig, msg, path):
+    "Writes the input arguments for verifyEddsa in the ZoKrates stdlib to file."
     sig_R, sig_S = sig
     args = [sig_R.x, sig_R.y, sig_S, pk.p.x.n, pk.p.y.n]
     args = " ".join(map(str, args))
@@ -60,16 +44,36 @@ def write_for_zokrates_cli(pk, sig, msg, path):
             file.write(l)
 
 
-def pprint_hex(n, h):
+def pprint_hex_as_256bit(n, h):
+    "Takes a variable name and a hex encoded number and returns Zokrates assignment statement."
     b = BitArray(int(h, 16).to_bytes(32, "big")).bin
     s = "[" + ", ".join(b) + "]"
-    print("field[256] {} = {} \n".format(n, s))
+    return "field[256] {} = {} \n".format(n, s)
 
 
 def pprint_point(n, p):
+    "Takes a variable name and curve point and returns Zokrates assignment statement."
     x, y = p
-    print("field[2] {} = [{}, {}] \n".format(n, x, y))
+    return "field[2] {} = [{}, {}] \n".format(n, x, y)
 
 
 def pprint_fe(n, fe):
-    print("field {} = {} \n".format(n, fe))
+    "Takes a variable name and field element and returns Zokrates assignment statement."
+    return "field {} = {} \n".format(n, fe)
+
+
+def pprint_for_zokrates(pk, sig, msg):
+
+    M0 = msg.hex()[:64]
+    M1 = msg.hex()[64:]
+
+    code = []
+    sig_R, sig_S = sig
+    for n, h in zip(["M0", "M1"], [M0, M1]):
+        code.append(pprint_hex_as_256bit(n, h))
+
+    code.append(pprint_point("A", pk.p))
+    code.append(pprint_point("R", sig_R))
+    code.append(pprint_fe("S", sig_S))
+
+    print("\n".join(code))

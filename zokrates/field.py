@@ -1,24 +1,21 @@
 """
 This code is copied from https://github.com/ethereum/py_ecc/blob/master/py_ecc/bn128/bn128_curve.py
-Unfortuantely the field modulus is not generic in this implementation, hence we had to copy the file.
-All changes from our side are denoted with #CHANGE 
+Author is Vitalik Buterin.
+Unfortunately the field modulus is not generic in this implementation, hence we had to copy the file.
+All changes from our side are denoted with #CHANGE.
 """
 
 from __future__ import absolute_import
 
-from typing import (
-    cast,
-    List,
-    Tuple,
-    Sequence,
-    Union,
-)
+from typing import cast, List, Tuple, Sequence, Union
 
 
 # The prime modulus of the field
 # field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
-field_modulus = 21888242871839275222246405745257275088548364400416034343698204186575808495617
-#CHANGE: Changing the modulus to the embedded curve
+field_modulus = (
+    21888242871839275222246405745257275088548364400416034343698204186575808495617
+)
+# CHANGE: Changing the modulus to the embedded curve
 
 # See, it's prime!
 assert pow(2, field_modulus, field_modulus) == 2
@@ -26,7 +23,7 @@ assert pow(2, field_modulus, field_modulus) == 2
 # The modulus of the polynomial in this representation of FQ12
 # FQ12_MODULUS_COEFFS = (82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0)  # Implied + [1]
 # FQ2_MODULUS_COEFFS = (1, 0)
-#CHANGE: No need for extended coordiantes in this case
+# CHANGE: No need for extended  in this case
 
 # Extended euclidean algorithm to find modular inverses for
 # integers
@@ -105,13 +102,17 @@ class FQ(object):
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self, other: IntOrFQ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __eq__(
+        self, other: IntOrFQ
+    ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if isinstance(other, FQ):
             return self.n == other.n
         else:
             return self.n == other
 
-    def __ne__(self, other: IntOrFQ) -> bool:    # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
+    def __ne__(
+        self, other: IntOrFQ
+    ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         return not self == other
 
     def __neg__(self) -> "FQ":
