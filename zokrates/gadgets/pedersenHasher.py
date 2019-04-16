@@ -33,8 +33,8 @@ def windows_to_dsl_array(windows):
     bit_windows = (bitstring.BitArray(bin(i)).bin[::-1] for i in windows)
     bit_windows_padded = ("{:0<3}".format(w) for w in bit_windows)
     bitstr = "".join(bit_windows_padded)
-    dsl = "[" + ", ".join(bitstr) + "]"
-    return dsl
+    # dsl = "[" + ", ".join(bitstr) + "]"
+    return list(bitstr)
 
 
 class PedersenHasher(object):
