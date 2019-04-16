@@ -1,42 +1,5 @@
-"""
-This module implements a Pedersen hash function.
-It can hash points, scalar values or blocks of message data.
-
-It is possible to create two variants, however only the
-non-homomorphic variant has been implemented.
-
-The homomorphic variant users the same base point for every
-input, whereas the non-homomorphic version uses a different
-base point for every input.
-
-For example to non-homomorphically hash the two points P1 and P2
-
-    Four base points are chosen (consistently)
-
-        B0, B1, B2, B3
-
-    The result of the hash is the point:
-
-        B0*P1.x + B1*P1.y + B2*P2.x + B3*P2.y
-
-To homomorphically hash the two points:
-
-    Two base points are chosen
-
-        BX, BY
-
-    The result of the hash is the point:
-
-        BX*P1.x + BY*P1.y + BX*P2.x + BY*P2.y
-
-    The hash will be the same if either point is swapped
-    with the other, e.g. H(P1,P2) is the same as H(P2,P1).
-
-    This provides a basis for 'chemeleon hashes', or where
-    malleability is a feature rather than a defect.
-
-    based on: https://github.com/HarryR/ethsnarks
-"""
+# TODO: add doc
+# based on: https://github.com/HarryR/ethsnarks
 
 import math
 import bitstring
@@ -44,10 +7,14 @@ from math import floor, log2
 from struct import pack
 
 from .babyjubjub import Point, JUBJUB_L, JUBJUB_C
+from .field import FQ
 
+# TODO: use parameterise and show source
+CHUNK_SIZE_BITS = 3
+LOOKUP_SIZE_BITS = 2
+CHUNKS_PER_BASE_POINT = 62
 
-MAX_SEGMENT_BITS = floor(log2(JUBJUB_L))
-MAX_SEGMENT_BYTES = MAX_SEGMENT_BITS // 8
+# TODO: make it a class
 
 
 def pedersen_hash_basepoint(name, i):
@@ -73,10 +40,11 @@ def pedersen_hash_basepoint(name, i):
 def pedersen_hash_windows(name, windows):
     # TODO: define `62`,
     # 248/62 == 4... ? CHUNKS_PER_BASE_POINT
+    #  TODO: describe -binary => complementary
     result = Point.infinity()
     for j, window in enumerate(windows):
         if j % 62 == 0:
-            current = pedersen_hash_basepoint(name, j // 62)
+            current = pedersen_hash_basepoint(name, j // 62)  # add to list
         j = j % 62
         if j != 0:
             current = current.double().double().double().double()
@@ -85,6 +53,77 @@ def pedersen_hash_windows(name, windows):
             segment = segment.neg()
         result += segment
     return result
+
+
+WINDOW_SIZE_BITS = 2
+
+
+def pedersen_hash_gen_table(name, segments=62):
+    table = []
+    for j in range(0, segments):
+        if j % 62 == 0:
+            p = pedersen_hash_basepoint(name, j // 62)  # add to list
+        j = j % 62
+        if j != 0:
+            p = p.double().double().double().double()
+        # scalar = (window & 0b11) + 1
+        row = [p.mult(i + 1) for i in range(0, WINDOW_SIZE_BITS ** 2)]
+        table.append(row)
+
+    print(pprint_pedersen_windowed_table(table))
+    return table
+
+
+def pedersen_hash_windowed_table(name, windows):
+
+    segments = len(windows)
+    table = pedersen_hash_gen_table(name, segments)
+
+    a = Point.infinity()
+    for j, window in enumerate(windows):
+        row = table[j]
+        scalar = window & 0b11
+        c = row[scalar]
+        if window > 0b11:
+            c = c.neg()
+        a += c
+    return a
+
+
+def pedersen_hash_bits_table(name, bits):
+    # Split into 3 bit windows
+    if isinstance(bits, bitstring.BitArray):
+        bits = bits.bin
+    windows = [int(bits[i : i + 3][::-1], 2) for i in range(0, len(bits), 3)]
+    assert len(windows) > 0
+
+    # Hash resulting windows
+    return pedersen_hash_windowed_table(name, windows)
+
+
+def pprint_pedersen_windowed_table(table):
+
+    # TODO: add imports
+    dsl = []
+
+    segments = len(table)
+    for i in range(0, segments):
+        r = table[i]
+        dsl.append("//Round {}".format(i))
+        dsl.append(
+            "cx = sel3s([e[{}], e[{}], e[{}]], [{} , {}, {}, {}])".format(
+                3 * i, 3 * i + 1, 3 * i + 2, r[0].x, r[1].x, r[2].x, r[3].x
+            )
+        )
+        # TODO: y coordinate does not need to be inverted
+        dsl.append(
+            "cy = sel2([e[{}], e[{}]], [{} , {}, {}, {}])".format(
+                3 * i, 3 * i + 1, r[0].y, r[1].y, r[2].y, r[3].y
+            )
+        )
+        dsl.append("a = add(a, [cx, cy], context)")
+
+    return "\n".join(dsl)
 
 
 def pedersen_hash_bits(name, bits):
