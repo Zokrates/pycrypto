@@ -185,20 +185,20 @@ import "ecc/edwardsAdd.code" as add"""
         segments = len(table)
         for i in range(0, segments):
             r = table[i]
-            program.append("//Round {}".format(i))
+            program.append("\t//Round {}".format(i))
             program.append(
-                "cx = sel3s([e[{}], e[{}], e[{}]], [{} , {}, {}, {}])".format(
+                "\tcx = sel3s([e[{}], e[{}], e[{}]], [{} , {}, {}, {}])".format(
                     3 * i, 3 * i + 1, 3 * i + 2, r[0].x, r[1].x, r[2].x, r[3].x
                 )
             )
             program.append(
-                "cy = sel2([e[{}], e[{}]], [{} , {}, {}, {}])".format(
+                "\tcy = sel2([e[{}], e[{}]], [{} , {}, {}, {}])".format(
                     3 * i, 3 * i + 1, r[0].y, r[1].y, r[2].y, r[3].y
                 )
             )
-            program.append("a = add(a, [cx, cy], context)")
+            program.append("\ta = add(a, [cx, cy], context)")
 
-        program.append("return a")
+        program.append("\treturn a")
         return imports + "\n".join(program)
 
     @property
