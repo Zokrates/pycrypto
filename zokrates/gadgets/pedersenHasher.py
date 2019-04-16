@@ -38,14 +38,20 @@ def windows_to_dsl_array(windows):
 
 
 class PedersenHasher(object):
-    # default is set to max number of windows for a fixed base point
-    def __init__(self, name, segments=62):
+    def __init__(self, name, segments=False):
         self.name = name
-        self.segments = segments
+        if segments:
+            self.segments = segments
+            self.is_sized = True
+        else:
+            self.is_sized = False
 
     def __gen_table(self):
         name = self.name
         segments = self.segments
+        assert (
+            self.is_sized == True
+        ), "Hasher size must be defined first, before lookup table can be created"
         table = []
         for j in range(0, segments):
             if j % 62 == 0:
@@ -61,6 +67,10 @@ class PedersenHasher(object):
 
     def __hash_windows(self, windows, witness):
         name = self.name
+        if self.is_sized == False:
+            self.segments = len(windows)
+            self.is_sized = True
+
         segments = self.segments
 
         assert (
