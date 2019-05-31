@@ -168,3 +168,35 @@ class Point(namedtuple("_Point", ("x", "y"))):
                 raise RuntimeError("Point not on prime-ordered subgroup")
 
             return p
+
+    def compress(self):
+        x = self.x.n
+        y = self.y.n
+        return int.to_bytes(y | ((x & 1) << 255), 32, "little")
+
+    @classmethod
+    def decompress(cls, point):
+        """
+        From: https://ed25519.cr.yp.to/eddsa-20150704.pdf
+
+        The encoding of F_q is used to define "negative" elements of F_q:
+        specifically, x is negative if the (b-1)-bit encoding of x is
+        lexiographically larger than the (b-1)-bit encoding of -x. In particular,
+        if q is prime and the (b-1)-bit encoding of F_q is the little-endian
+        encoding of {0, 1, ..., q-1}, then {1,3,5,...,q-2} are the negative element of F_q.
+
+        This encoding is also used to define a b-bit encoding of each element `(x,y) ∈ E`
+        as a b-bit string (x,y), namely the (b-1)-bit encoding of y followed by the sign bit.
+        the sign bit is 1 if and only if x is negative.
+
+        A parser recovers `(x,y)` from a b-bit string, while also verifying that `(x,y) ∈ E`,
+        as follows: parse the first b-1 bits as y, compute `xx = (y^2 - 1) / (dy^2 - a)`;
+        compute `x = [+ or -] sqrt(xx)` where the `[+ or -]` is chosen so that the sign of
+        `x` matches the `b`th bit of the string. if `xx` is not a square then parsing fails.
+        """
+        if len(point) != 32:
+            raise ValueError("Invalid input length for decompression")
+        y = int.from_bytes(point, "little")
+        sign = y >> 255
+        y &= (1 << 255) - 1
+        return cls.from_y(FQ(y), sign)
