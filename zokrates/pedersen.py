@@ -132,7 +132,6 @@ def pedersen_hash_bits(name, bits):
         bits = bits.bin
     windows = [int(bits[i : i + 3][::-1], 2) for i in range(0, len(bits), 3)]
     assert len(windows) > 0
-
     # Hash resulting windows
     return pedersen_hash_windows(name, windows)
 

@@ -45,11 +45,13 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
     """
 
     @classmethod
+    # FIXME: ethsnarks creates keys > 32bytes. Create issue.
     def from_rand(cls):
         mod = JUBJUB_L
-        nbytes = ceil(ceil(log2(mod)) / 8) + 1
+        # nbytes = ceil(ceil(log2(mod)) / 8) + 1
+        nbytes = ceil(ceil(log2(mod)) / 8)
         rand_n = int.from_bytes(urandom(nbytes), "little")
-        return cls(rand_n)
+        return cls(FQ(rand_n))
 
     def sign(self, msg, B=None):
         "Returns the signature (R,S) for a given private key and message."
