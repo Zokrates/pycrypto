@@ -17,6 +17,58 @@ pip install -r requirements.txt
 
 ## Example
 
+### Compute SNARK-friendly Pedersen hash
+Let's create a simple demo, called `demo.py`:
+```python
+from zokrates.gadgets.pedersenHasher import PedersenHasher
+
+preimage = bytes.fromhex("1616")
+# create a instance with personalisation string
+hasher = PedersenHasher(b"test")
+# hash payload
+digest = hasher.hash_bytes(preimage)
+print(digest)
+# x:2685288813799964008676827085163841323150845457335242286797566359029072666741,
+# y:3621301112689898657718575625160907319236763714743560759856749092648347440543
+
+# write ZoKrates DSL code to disk
+path = "pedersen.code"
+with open(path, "w+") as f:
+    for l in hasher.dsl_code:
+        f.write(l)
+
+# write witness arguments to disk
+path = "pedersen_witness.txt"
+witness = hasher.gen_dsl_witness_bytes(preimage)
+with open(path, "w+") as f:
+    f.write(" ".join(witness))
+```
+
+We can now can run this python script via:
+
+```bash
+python demo.py
+```
+which should create the ZoKrates DSL code file `pedersen.code`, as well as a file which contains the witness `pedersen_witness.txt`.
+
+Make sure you have the `zokrates` executable in the same folder. Then run the following command to compile the SNARK-circuit:
+```bash
+./zokrates compile -i pedersen.code
+```
+
+We can now conpute the witness:
+```bash
+`cat zokrates_witness.txt | ./zokrates compute-witness`
+
+Witness:
+
+~out_1 3621301112689898657718575625160907319236763714743560759856749092648347440543
+~out_0 2685288813799964008676827085163841323150845457335242286797566359029072666741
+```
+
+As you can easily verify we get the same pedersen hash point for the Python and ZoKrates implementation.
+
+### Create and verify Eddsa signature
 Let's create a simple demo, called `demo.py`:
 
 ```python
@@ -41,7 +93,7 @@ if __name__ == "__main__":
     is_verified = pk.verify(sig, msg)
     print(is_verified)
 
-    path = './zokrates_args'
+    path = 'zokrates_witness.txt'
     write_signature_for_zokrates_cli(pk, sig, msg, path)
 ```
 
@@ -51,11 +103,11 @@ We can now can run this python script via:
 python demo.py
 ```
 
-which should create a file called `zokrates_args`.
+which should create a file called `zokrates_witness.txt`.
 
 These arguments can now be passed to the `verifyEddsa` function in ZoKrates via:
 
-`cat zokrates_args | ./zokrates compute-witness`
+`cat zokrates_witness.txt | ./zokrates compute-witness`
 
 ## CLI Usage
 

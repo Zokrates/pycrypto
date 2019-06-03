@@ -1,11 +1,6 @@
 import argparse
 from sys import exit
-from zokrates.pedersen import (
-    pedersen_hash_bytes,
-    pedersen_hash_bits,
-    pedersen_hash_scalars,
-    pedersen_hash_bits_table,
-)
+from zokrates.gadgets.pedersenHasher import PedersenHasher
 from zokrates.babyjubjub import Point
 from zokrates.eddsa import PrivateKey, PublicKey
 from zokrates.field import FQ
@@ -18,7 +13,9 @@ def check_hex_type(x):
 # check if argument type is a 32 byte hexstring
 def check_hex_32_type(x):
     if len(x) != 64:
-        raise ValueError("Bad Bit-length provided {}. Should be 256bit".format(len(x)))
+        raise ValueError(
+            "Bad Byte-length provided {}. Should be 64 bytes".format(len(x))
+        )
     return check_hex_type(x)
 
 
@@ -28,7 +25,8 @@ def main():
 
     # pedersen hash subcommand
     pedersen_parser = subparsers.add_parser(
-        "hash", help="Compute a 256bit Pedersen hash. Preimage size is set to 512bit as default"
+        "hash",
+        help="Compute a 256bit Pedersen hash. Preimage size is set to 512bit as default",
     )
     pedersen_parser.add_argument(
         "preimage", nargs=1, type=check_hex_type, help="Provide preimage as hexstring"
@@ -94,9 +92,12 @@ def main():
     if subparser_name == "hash":
         preimage = bytes.fromhex(args.preimage[0])
         if len(preimage) != args.size:
-            raise ValueError("Bad lenght for preimage: {} vs {}".format(len(preimage), args.size))
+            raise ValueError(
+                "Bad lenght for preimage: {} vs {}".format(len(preimage), args.size)
+            )
 
-        point = pedersen_hash_bytes(args.personalisation.encode("utf8"), preimage)
+        personalisation = args.personalisation.encode("ascii")
+        point = PedersenHasher(personalisation).hash_bytes(preimage)
         digest = point.compress()
 
         assert len(digest.hex()) == 32 * 2  # compare to hex string
@@ -142,7 +143,9 @@ def main():
             exit("Could not verfiy signature")
 
     else:
-        raise NotImplementedError("Sub-command not implemented: {}".format(subparser_name))
+        raise NotImplementedError(
+            "Sub-command not implemented: {}".format(subparser_name)
+        )
 
 
 if __name__ == "__main__":

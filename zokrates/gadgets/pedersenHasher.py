@@ -181,6 +181,8 @@ import "ecc/edwardsAdd.code" as add"""
 
         program = []
         program.append("\ndef main({}) -> (field[2]):".format(self.gen_dsl_args()))
+        program.append("\tcontext = context()")
+        program.append("\tfield[2] a = [context[2], context[3]] //Infinity")
 
         segments = len(table)
         for i in range(0, segments):
@@ -207,4 +209,4 @@ import "ecc/edwardsAdd.code" as add"""
 
     def gen_dsl_args(self):
         segments = self.segments
-        return "fields[{}] e".format(segments * (WINDOW_SIZE_BITS + 1))
+        return "field[{}] e".format(segments * (WINDOW_SIZE_BITS + 1))
