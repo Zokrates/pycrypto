@@ -172,7 +172,8 @@ class Point(namedtuple("_Point", ("x", "y"))):
     def compress(self):
         x = self.x.n
         y = self.y.n
-        return int.to_bytes(y | ((x & 1) << 255), 32, "little")
+        # return int.to_bytes(y | ((x & 1) << 255), 32, "little")
+        return int.to_bytes(y | ((x & 1) << 255), 32, "big")
 
     @classmethod
     def decompress(cls, point):
@@ -196,7 +197,8 @@ class Point(namedtuple("_Point", ("x", "y"))):
         """
         if len(point) != 32:
             raise ValueError("Invalid input length for decompression")
-        y = int.from_bytes(point, "little")
+        # y = int.from_bytes(point, "little")
+        y = int.from_bytes(point, "big")
         sign = y >> 255
         y &= (1 << 255) - 1
         return cls.from_y(FQ(y), sign)

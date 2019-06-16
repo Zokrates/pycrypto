@@ -7,7 +7,9 @@ from zokrates.field import FQ
 
 # check if argument type is a hexstring
 def check_hex_type(x):
-    return hex(int(x, 16))[2:]
+    # return hex(int(x, 16))[2:]
+    # TODO: use regex instead
+    return x
 
 
 # check if argument type is a 32 byte hexstring
@@ -119,7 +121,8 @@ def main():
     elif subparser_name == "sig-gen":
         sk_hex = int(args.private_key[0], 16)
         sk = PrivateKey(FQ(sk_hex))
-        msg = args.message[0].encode("utf-8")
+        # msg = args.message[0].encode("ascii")
+        msg = bytes.fromhex(args.message[0])
 
         (r, s) = sk.sign(msg)
         s_hex = hex(s)[2:]
@@ -129,7 +132,8 @@ def main():
 
     elif subparser_name == "sig-verify":
         r_hex, s_hex = args.signature[0], args.signature[1]
-        msg = args.message[0].encode("utf-8")
+        # msg = args.message[0].encode("ascii")
+        msg = bytes.fromhex(args.message[0])
         pk_hex = args.public_key[0]
 
         pk = PublicKey(Point.decompress(bytes.fromhex(pk_hex)))
