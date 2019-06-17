@@ -5,21 +5,6 @@ from zokrates.babyjubjub import Point
 from zokrates.eddsa import PrivateKey, PublicKey
 from zokrates.field import FQ
 
-# check if argument type is a hexstring
-def check_hex_type(x):
-    # return hex(int(x, 16))[2:]
-    # TODO: use regex instead
-    return x
-
-
-# check if argument type is a 32 byte hexstring
-def check_hex_32_type(x):
-    if len(x) != 64:
-        raise ValueError(
-            "Bad Byte-length provided {}. Should be 64 bytes".format(len(x))
-        )
-    return check_hex_type(x)
-
 
 def main():
     parser = argparse.ArgumentParser(description="pycrypto command-line interface")
@@ -31,7 +16,7 @@ def main():
         help="Compute a 256bit Pedersen hash. Preimage size is set to 512bit as default",
     )
     pedersen_parser.add_argument(
-        "preimage", nargs=1, type=check_hex_type, help="Provide preimage as hexstring"
+        "preimage", nargs=1, help="Provide preimage as hexstring"
     )
     pedersen_parser.add_argument(
         "-s", "--size", type=int, help="Define message size in bits", default=64
@@ -48,7 +33,6 @@ def main():
     keygen_parser.add_argument(
         "-p",
         "--from_private",
-        type=check_hex_32_type,
         help="Provide existing private key as hexstring (64 chars)",
     )
 
@@ -58,10 +42,7 @@ def main():
         help="Returns eddsa signature as space separated hex-string. Private key and message needs to be provided",
     )
     sig_gen_parser.add_argument(
-        "private_key",
-        type=check_hex_32_type,
-        nargs=1,
-        help="Provide public key as hexstring (64chars)",
+        "private_key", nargs=1, help="Provide public key as hexstring (64chars)"
     )
 
     sig_gen_parser.add_argument(
@@ -73,17 +54,13 @@ def main():
         "sig-verify", help="Verifies a eddsa signaure. Returns boolean flag for success"
     )
     sig_verify_parser.add_argument(
-        "public_key",
-        type=check_hex_32_type,
-        nargs=1,
-        help="Provide public key as hexstring (64chars)",
+        "public_key", nargs=1, help="Provide public key as hexstring (64chars)"
     )
     sig_verify_parser.add_argument(
         "message", nargs=1, help="Provide message as string, will be utf-8 encoded"
     )
     sig_verify_parser.add_argument(
         "signature",
-        type=check_hex_32_type,
         nargs=2,
         help="Provide signaure as space separated hexsting (2x 64 chars)",
     )
