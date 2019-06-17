@@ -25,6 +25,18 @@ def main():
         "-p", "--personalisation", help="Provide personalisation string", default="test"
     )
 
+    pedersen_hasher_parser = subparsers.add_parser(
+        "run_hasher",
+        help="Compute a 256bit Pedersen hash. Keeping streams alive",
+    )
+
+    pedersen_hasher_parser.add_argument(
+        "-s", "--size", type=int, help="Define message size in bits", default=64
+    )
+    pedersen_hasher_parser.add_argument(
+        "-p", "--personalisation", help="Provide personalisation string", default="test"
+    )
+
     # keygen subcommand
     keygen_parser = subparsers.add_parser(
         "keygen",
@@ -81,6 +93,23 @@ def main():
 
         assert len(digest.hex()) == 32 * 2  # compare to hex string
         print(digest.hex())
+
+    elif subparser_name == "run_hasher":
+        personalisation = args.personalisation.encode("ascii")
+        ph = PedersenHasher(personalisation)
+        while(True):
+            x = input("?")
+            if x == "exit":
+                exit(0)
+            preimage = bytes.fromhex(x)
+            if len(preimage) != args.size:
+                raise ValueError(
+                    "Bad length for preimage: {} vs {}".format(len(preimage), 64)
+                )
+            point = ph.hash_bytes(preimage)
+            digest = point.compress()
+            assert len(digest.hex()) == 32 * 2  # compare to hex string
+            print(digest.hex())
 
     elif subparser_name == "keygen":
         if args.from_private:
