@@ -67,12 +67,22 @@ class PedersenHasher(object):
 
     def __hash_windows(self, windows, witness):
         name = self.name
+
         if self.is_sized == False:
             self.segments = len(windows)
             self.is_sized = True
 
-        segments = self.segments
+            generators = []
+            for j in range(0, self.segments):
+                if j % 62 == 0:
+                    current = pedersen_hash_basepoint(name, j // 62)  # add to list
+                j = j % 62
+                if j != 0:
+                    current = current.double().double().double().double()
+                generators.append(current)
+            self.generators = generators
 
+        segments = self.segments
         assert (
             len(windows) <= segments
         ), "Number of windows exceeds pedersenHasher config. {} vs {}".format(
@@ -93,13 +103,8 @@ class PedersenHasher(object):
         # TODO: define `62`,
         # 248/62 == 4... ? CHUNKS_PER_BASE_POINT
         result = Point.infinity()
-        for j, window in enumerate(windows):
-            if j % 62 == 0:
-                current = pedersen_hash_basepoint(name, j // 62)  # add to list
-            j = j % 62
-            if j != 0:
-                current = current.double().double().double().double()
-            segment = current * ((window & 0b11) + 1)
+        for (g, window) in zip(self.generators, windows):
+            segment = g * ((window & 0b11) + 1)
             if window > 0b11:
                 segment = segment.neg()
             result += segment
