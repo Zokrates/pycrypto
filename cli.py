@@ -59,7 +59,7 @@ def main():
     )
 
     sig_gen_parser.add_argument(
-        "message", nargs=1, help="Provide message as string, will be utf-8 encoded"
+        "message", nargs=1, help="Provide message as hex string"
     )
 
     # EdDSA signature verify subcommand
