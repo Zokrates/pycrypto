@@ -135,6 +135,10 @@ class Point(namedtuple("_Point", ("x", "y"))):
     def from_hash(cls, entropy):
         """
         HashToPoint (or Point.from_hash)
+
+        Parameters:
+            entropy (bytes): input entropy provided as byte array
+
         Hashes the input entropy and interprets the result as the Y coordinate
         then recovers the X coordinate, if no valid point can be recovered
         Y is incremented until a matching X coordinate is found.

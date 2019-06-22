@@ -6,14 +6,14 @@ from struct import pack
 from ..babyjubjub import Point, JUBJUB_L, JUBJUB_C
 from ..field import FQ
 
-WINDOW_SIZE_BITS = 2
+WINDOW_SIZE_BITS = 2  # Size of the pre-computed look-up table
 
 
 def pedersen_hash_basepoint(name, i):
     """
-    Create a base point for use with the windowed pedersen
+    Create a base point for use with the windowed Pedersen
     hash function.
-    The name and sequence numbers are used a unique identifier.
+    The name and sequence numbers are used as a unique identifier.
     Then HashToPoint is run on the name+seq to get the base point.
     """
     if not isinstance(name, bytes):
@@ -33,7 +33,6 @@ def windows_to_dsl_array(windows):
     bit_windows = (bitstring.BitArray(bin(i)).bin[::-1] for i in windows)
     bit_windows_padded = ("{:0<3}".format(w) for w in bit_windows)
     bitstr = "".join(bit_windows_padded)
-    # dsl = "[" + ", ".join(bitstr) + "]"
     return list(bitstr)
 
 

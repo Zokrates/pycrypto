@@ -118,7 +118,7 @@ python cli.py hash 3755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d
 ```
 where the first argument denotes the preimage as a hexstring.
 
-### Create and verify a Eddsa signature
+### Create and verify an EdDSA signature
 ```bash
 python cli.py keygen
 # => 2af7ce3cba7002380d9e91f3c62b674e795aae6dfa6b949c8eaa8931c8a61267 3755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d908
