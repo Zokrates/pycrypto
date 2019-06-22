@@ -5,7 +5,6 @@ This repository contains accompanying crypto application code the for the zkSNAR
 _This is a proof-of-concept implementation. It has not been tested for production._
 
 
-
 ## Install
 
 Make sure you are running a python 3 runtime.
@@ -23,7 +22,7 @@ Let's create a simple demo, called `demo.py`:
 from zokrates.gadgets.pedersenHasher import PedersenHasher
 
 preimage = bytes.fromhex("1616")
-# create a instance with personalisation string
+# create an instance with personalisation string
 hasher = PedersenHasher(b"test")
 # hash payload
 digest = hasher.hash_bytes(preimage)
@@ -33,9 +32,7 @@ print(digest)
 
 # write ZoKrates DSL code to disk
 path = "pedersen.code"
-with open(path, "w+") as f:
-    for l in hasher.dsl_code:
-        f.write(l)
+hasher.write_dsl_code(path)
 
 # write witness arguments to disk
 path = "pedersen_witness.txt"
@@ -111,7 +108,7 @@ These arguments can now be passed to the `verifyEddsa` function in ZoKrates via:
 
 ## CLI Usage
 
-`pycrypto` also provides a simple command-line interface to make it easy to integrate the used crypto-primitives into your existing application code.
+`pycrypto` also provides a simple command-line interface to make it easy to integrate the used crypto primitives into your existing application code.
 
 Some examples:
 
@@ -119,7 +116,7 @@ Some examples:
 ```bash
 python cli.py hash 3755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d9083755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d908
 ```
-where the first argument denotes the preimage a hexstring.
+where the first argument denotes the preimage as a hexstring.
 
 ### Create and verify a Eddsa signature
 ```bash

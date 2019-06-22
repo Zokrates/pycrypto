@@ -55,7 +55,7 @@ def main():
         help="Returns eddsa signature as space separated hex-string. Private key and message needs to be provided",
     )
     sig_gen_parser.add_argument(
-        "private_key", nargs=1, help="Provide public key as hexstring (64chars)"
+        "private_key", nargs=1, help="Provide private key as hexstring (64chars)"
     )
 
     sig_gen_parser.add_argument(

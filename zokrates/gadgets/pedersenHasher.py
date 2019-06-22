@@ -47,40 +47,37 @@ class PedersenHasher(object):
             self.is_sized = False
 
     def __gen_table(self):
-        name = self.name
-        segments = self.segments
         assert (
             self.is_sized == True
         ), "Hasher size must be defined first, before lookup table can be created"
+        generators = self.generators
         table = []
-        for j in range(0, segments):
-            if j % 62 == 0:
-                p = pedersen_hash_basepoint(name, j // 62)  # add to list
-            j = j % 62
-            if j != 0:
-                p = p.double().double().double().double()
-            # scalar = (window & 0b11) + 1
+        for p in generators:
             row = [p.mult(i + 1) for i in range(0, WINDOW_SIZE_BITS ** 2)]
             table.append(row)
-
         return table
 
-    def __hash_windows(self, windows, witness):
+    def __gen_generators(self):
+
         name = self.name
+        segments = self.segments
+        generators = []
+        for j in range(0, segments):
+            # TODO: define `62`,
+            if j % 62 == 0:
+                current = pedersen_hash_basepoint(name, j // 62)
+            j = j % 62
+            if j != 0:
+                current = current.double().double().double().double()
+            generators.append(current)
+        return generators
+
+    def __hash_windows(self, windows, witness):
 
         if self.is_sized == False:
             self.segments = len(windows)
             self.is_sized = True
-
-            generators = []
-            for j in range(0, self.segments):
-                if j % 62 == 0:
-                    current = pedersen_hash_basepoint(name, j // 62)  # add to list
-                j = j % 62
-                if j != 0:
-                    current = current.double().double().double().double()
-                generators.append(current)
-            self.generators = generators
+            self.generators = self.__gen_generators()
 
         segments = self.segments
         assert (
@@ -100,8 +97,6 @@ class PedersenHasher(object):
         if witness:
             return windows_to_dsl_array(windows)
 
-        # TODO: define `62`,
-        # 248/62 == 4... ? CHUNKS_PER_BASE_POINT
         result = Point.infinity()
         for (g, window) in zip(self.generators, windows):
             segment = g * ((window & 0b11) + 1)
@@ -215,3 +210,8 @@ import "ecc/edwardsAdd.code" as add"""
     def gen_dsl_args(self):
         segments = self.segments
         return "field[{}] e".format(segments * (WINDOW_SIZE_BITS + 1))
+
+    def write_dsl_code(self, file_name):
+        with open(file_name, "w+") as f:
+            for l in self.dsl_code:
+                f.write(l)
