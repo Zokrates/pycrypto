@@ -1,9 +1,9 @@
 import argparse
 import sys
-from zokrates.gadgets.pedersenHasher import PedersenHasher
-from zokrates.babyjubjub import Point
-from zokrates.eddsa import PrivateKey, PublicKey
-from zokrates.field import FQ
+from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher
+from zokrates_pycrypto.babyjubjub import Point
+from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
+from zokrates_pycrypto.field import FQ
 
 
 def main():

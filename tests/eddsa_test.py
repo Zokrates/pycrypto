@@ -1,9 +1,9 @@
 import unittest
 from os import urandom
 
-from zokrates.field import FQ
-from zokrates.babyjubjub import Point
-from zokrates.eddsa import PublicKey, PrivateKey
+from zokrates_pycrypto.field import FQ
+from zokrates_pycrypto.babyjubjub import Point
+from zokrates_pycrypto.eddsa import PublicKey, PrivateKey
 
 
 class TestEdDSA(unittest.TestCase):

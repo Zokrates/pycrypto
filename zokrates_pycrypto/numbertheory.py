@@ -8,6 +8,7 @@
 # Revision history:
 #   2008.11.14: Use pow( base, exponent, modulus ) for modular_exp.
 #               Make gcd and lcm accept arbitrarly many arguments.
+# reference: https://github.com/warner/python-ecdsa/blob/master/src/ecdsa/numbertheory.py
 
 from __future__ import division, print_function
 

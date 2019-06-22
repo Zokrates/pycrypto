@@ -3,8 +3,8 @@ import unittest
 from os import urandom
 from random import randint
 
-from zokrates.babyjubjub import Point, FQ
-from zokrates.gadgets.pedersenHasher import PedersenHasher as P
+from zokrates_pycrypto.babyjubjub import Point, FQ
+from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher as P
 
 
 class TestPedersenHash(unittest.TestCase):

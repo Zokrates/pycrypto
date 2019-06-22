@@ -2,9 +2,9 @@ import unittest
 
 from os import urandom
 
-from zokrates.field import FQ
-from zokrates.babyjubjub import Point
-from zokrates.babyjubjub import JUBJUB_E, JUBJUB_C, JUBJUB_L
+from zokrates_pycrypto.field import FQ
+from zokrates_pycrypto.babyjubjub import Point
+from zokrates_pycrypto.babyjubjub import JUBJUB_E, JUBJUB_C, JUBJUB_L
 
 
 class TestJubjub(unittest.TestCase):

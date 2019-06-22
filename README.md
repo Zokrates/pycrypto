@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ### Compute SNARK-friendly Pedersen hash
 Let's create a simple demo, called `demo.py`:
 ```python
-from zokrates.gadgets.pedersenHasher import PedersenHasher
+from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher
 
 preimage = bytes.fromhex("1616")
 # create an instance with personalisation string
@@ -71,9 +71,9 @@ Let's create a simple demo, called `demo.py`:
 ```python
 import hashlib
 
-from zokrates.eddsa import PrivateKey, PublicKey
-from zokrates.field import FQ
-from zokrates.utils import write_signature_for_zokrates_cli
+from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
+from zokrates_pycrypto.field import FQ
+from zokrates_pycrypto.utils import write_signature_for_zokrates_cli
 
 if __name__ == "__main__":
 
