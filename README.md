@@ -5,7 +5,6 @@ This repository contains accompanying crypto application code for the zkSNARKs t
 _This is a proof-of-concept implementation. It has not been tested for production._
 
 
-
 ## Install
 
 Make sure you are running a python 3 runtime.
@@ -17,14 +16,64 @@ pip install -r requirements.txt
 
 ## Example
 
+### Compute SNARK-friendly Pedersen hash
+Let's create a simple demo, called `demo.py`:
+```python
+from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher
+
+preimage = bytes.fromhex("1616")
+# create an instance with personalisation string
+hasher = PedersenHasher(b"test")
+# hash payload
+digest = hasher.hash_bytes(preimage)
+print(digest)
+# x:2685288813799964008676827085163841323150845457335242286797566359029072666741,
+# y:3621301112689898657718575625160907319236763714743560759856749092648347440543
+
+# write ZoKrates DSL code to disk
+path = "pedersen.code"
+hasher.write_dsl_code(path)
+
+# write witness arguments to disk
+path = "pedersen_witness.txt"
+witness = hasher.gen_dsl_witness_bytes(preimage)
+with open(path, "w+") as f:
+    f.write(" ".join(witness))
+```
+
+We can now can run this python script via:
+
+```bash
+python demo.py
+```
+which should create the ZoKrates DSL code file `pedersen.code`, as well as a file which contains the witness `pedersen_witness.txt`.
+
+Make sure you have the `zokrates` executable in the same folder. Then run the following command to compile the SNARK-circuit:
+```bash
+./zokrates compile -i pedersen.code
+```
+
+We can now conpute the witness:
+```bash
+`cat zokrates_witness.txt | ./zokrates compute-witness`
+
+Witness:
+
+~out_1 3621301112689898657718575625160907319236763714743560759856749092648347440543
+~out_0 2685288813799964008676827085163841323150845457335242286797566359029072666741
+```
+
+As you can easily verify we get the same pedersen hash point for the Python and ZoKrates implementation.
+
+### Create and verify Eddsa signature
 Let's create a simple demo, called `demo.py`:
 
 ```python
 import hashlib
 
-from zokrates.eddsa import PrivateKey, PublicKey
-from zokrates.field import FQ
-from zokrates.utils import write_signature_for_zokrates_cli
+from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
+from zokrates_pycrypto.field import FQ
+from zokrates_pycrypto.utils import write_signature_for_zokrates_cli
 
 if __name__ == "__main__":
 
@@ -41,7 +90,7 @@ if __name__ == "__main__":
     is_verified = pk.verify(sig, msg)
     print(is_verified)
 
-    path = './zokrates_args'
+    path = 'zokrates_witness.txt'
     write_signature_for_zokrates_cli(pk, sig, msg, path)
 ```
 
@@ -51,11 +100,37 @@ We can now can run this python script via:
 python demo.py
 ```
 
-which should create a file called `zokrates_args`.
+which should create a file called `zokrates_witness.txt`.
 
 These arguments can now be passed to the `verifyEddsa` function in ZoKrates via:
 
-`cat zokrates_args | ./zokrates compute-witness`
+`cat zokrates_witness.txt | ./zokrates compute-witness`
+
+## CLI Usage
+
+`pycrypto` also provides a simple command-line interface to make it easy to integrate the used crypto primitives into your existing application code.
+
+Some examples:
+
+### Compute SNARK-friendly Pedersen hash
+```bash
+python cli.py hash 3755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d9083755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d908
+```
+where the first argument denotes the preimage as a hexstring.
+
+### Create and verify an EdDSA signature
+```bash
+python cli.py keygen
+# => 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995 
+# Private and public key
+
+python cli.py sig-gen 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a 11dd22 
+# => 172a1794976d7d0272148c4be3b7ad74fd3a82376cd5995fc4d274e3593c0e6c 24e96be628208a9800336d23bd31318d8a9b95bc9bd8f6f01cae207c05062523
+# R and S element of EdDSA signature
+
+python cli.py sig-verify ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995 11dd22 172a1794976d7d0272148c4be3b7ad74fd3a82376cd5995fc4d274e3593c0e6c 24e96be628208a9800336d23bd31318d8a9b95bc9bd8f6f01cae207c05062523
+# => True
+```
 
 ## Contributing
 
