@@ -90,7 +90,7 @@ if __name__ == "__main__":
     is_verified = pk.verify(sig, msg)
     print(is_verified)
 
-    path = 'zokrates_witness.txt'
+    path = 'zokrates_inputs.txt'
     write_signature_for_zokrates_cli(pk, sig, msg, path)
 ```
 
@@ -100,11 +100,26 @@ We can now can run this python script via:
 python demo.py
 ```
 
-which should create a file called `zokrates_witness.txt`.
+which should create a file called `zokrates_inputs.txt`.
 
-These arguments can now be passed to the `verifyEddsa` function in ZoKrates via:
+We can now create a small ZoKrates DSL file which wraps the existing `verifyEddsa` function in the standard library.
 
-`cat zokrates_witness.txt | ./zokrates compute-witness`
+```
+import "signatures/verifyEddsa.code" as verifyEddsa
+import "ecc/babyjubjubParams.code" as context
+
+def main(private field[2] R, private field S, field[2] A, field[256] M0, field[256] M1) -> (field):
+
+    context = context()
+
+    field isVerified = verifyEddsa(R, S, A, M0, M1, context)
+
+    return isVerified
+````
+
+After compiling this file we can now pass our input arguments into witness generation:
+
+`cat zokrates_inputs.txt | ./zokrates compute-witness`
 
 ## CLI Usage
 
@@ -121,10 +136,10 @@ where the first argument denotes the preimage as a hexstring.
 ### Create and verify an EdDSA signature
 ```bash
 python cli.py keygen
-# => 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995 
+# => 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995
 # Private and public key
 
-python cli.py sig-gen 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a 11dd22 
+python cli.py sig-gen 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a 11dd22
 # => 172a1794976d7d0272148c4be3b7ad74fd3a82376cd5995fc4d274e3593c0e6c 24e96be628208a9800336d23bd31318d8a9b95bc9bd8f6f01cae207c05062523
 # R and S element of EdDSA signature
 
