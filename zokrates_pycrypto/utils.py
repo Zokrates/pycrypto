@@ -1,6 +1,6 @@
 from bitstring import BitArray
 
-from .eddsa import Point
+from .babyjubjub import Point
 from .field import FQ
 import hashlib
 
