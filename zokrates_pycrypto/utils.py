@@ -35,8 +35,8 @@ def write_signature_for_zokrates_cli(pk, sig, msg, path):
 
     M0 = msg.hex()[:64]
     M1 = msg.hex()[64:]
-    b0 = BitArray(int(M0, 16).to_bytes(32, "big")).bin
-    b1 = BitArray(int(M1, 16).to_bytes(32, "big")).bin
+    b0 = [str(int(M0[i:i+8], 16)) for i in range(0,len(M0), 8)]
+    b1 = [str(int(M1[i:i+8], 16)) for i in range(0,len(M1), 8)]
     args = args + " " + " ".join(b0 + b1)
 
     with open(path, "w+") as file:
