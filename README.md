@@ -94,6 +94,8 @@ if __name__ == "__main__":
     write_signature_for_zokrates_cli(pk, sig, msg, path)
 ```
 
+In that example we use the SHA-512 hash function to compress the message to a 512bit input message, which is signed in the Eddsa protocol.
+
 We can now can run this python script via:
 
 ```bash
