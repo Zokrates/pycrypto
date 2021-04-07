@@ -108,6 +108,11 @@ class PedersenHasher(object):
         # Split into 3 bit windows
         if isinstance(bits, bitstring.BitArray):
             bits = bits.bin
+
+        assert len(bits) % 32 == 0, "Expected a multiple of 32 bits, found {}".format(len(bits))
+
+        self.input_len = len(bits) // 32
+
         windows = [int(bits[i : i + 3][::-1], 2) for i in range(0, len(bits), 3)]
         assert len(windows) > 0
 
@@ -173,15 +178,36 @@ class PedersenHasher(object):
         table = self.__gen_table()
 
         imports = """
-import "utils/multiplexer/lookup3bitSigned.code" as sel3s
-import "utils/multiplexer/lookup2bit.code" as sel2
-import "ecc/babyjubjubParams.code" as context
-import "ecc/edwardsAdd.code" as add"""
+import "utils/multiplexer/lookup3bitSigned" as sel3s
+import "utils/multiplexer/lookup2bit" as sel2
+import "ecc/babyjubjubParams" as context
+import "ecc/edwardsAdd" as add
+import "ecc/edwardsCompress" as edwardsCompress
+from "ecc/babyjubjubParams" import BabyJubJubParams
+import "EMBED/u32_to_bits" as to_bits
+import "EMBED/u32_from_bits" as from_bits"""
 
         program = []
-        program.append("\ndef main({}) -> (field[2]):".format(self.gen_dsl_args()))
-        program.append("\tcontext = context()")
-        program.append("\tfield[2] a = [context[2], context[3]] //Infinity")
+        program.append("\ndef main({}) -> u32[8]:".format(self.gen_dsl_args()))
+
+        program.append("\tbool[{}] e = [".format(self.segments * (WINDOW_SIZE_BITS + 1)))
+
+        # unpack inputs to bits and pad with `false`
+        program.append(",\n".join(["\t\t...to_bits(inputs[{}])".format(i) for i in range(0, self.input_len)] + ["\t\tfalse" for i in range(0, self.segments * (WINDOW_SIZE_BITS + 1) - self.input_len * 32)]))
+
+        program.append("\t]\n")
+
+        program.append("\tBabyJubJubParams context = context()")
+        program.append("\tfield[2] a = context.INFINITY //Infinity")
+
+        program.append(
+                "\tfield cx = 0"
+            )
+        program.append(
+                "\tfield cy = 0"
+            )
+
+        program.append("")
 
         segments = len(table)
         for i in range(0, segments):
@@ -199,7 +225,16 @@ import "ecc/edwardsAdd.code" as add"""
             )
             program.append("\ta = add(a, [cx, cy], context)")
 
-        program.append("\treturn a")
+        program.append("")
+        
+        program.append("\tbool[256] aC = edwardsCompress(a)")
+        
+        program.append("")
+
+        program.append("\treturn [")
+        # convert from bits to u32
+        program.append(",\n".join(["\t\tfrom_bits(aC[{}..{}])".format(i * 32, (i + 1) * 32) for i in range(0, 8)]))
+        program.append("\t]\n")
         return imports + "\n".join(program)
 
     @property
@@ -207,8 +242,9 @@ import "ecc/edwardsAdd.code" as add"""
         return self.__gen_dsl_code()
 
     def gen_dsl_args(self):
-        segments = self.segments
-        return "field[{}] e".format(segments * (WINDOW_SIZE_BITS + 1))
+        input_len = self.input_len
+
+        return "u32[{}] inputs".format(input_len)
 
     def write_dsl_code(self, file_name):
         with open(file_name, "w+") as f:

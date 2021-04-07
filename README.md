@@ -21,17 +21,17 @@ Let's create a simple demo, called `demo.py`:
 ```python
 from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher
 
-preimage = bytes.fromhex("1616")
+preimage = bytes.fromhex("16161616")
 # create an instance with personalisation string
 hasher = PedersenHasher(b"test")
 # hash payload
 digest = hasher.hash_bytes(preimage)
 print(digest)
-# x:2685288813799964008676827085163841323150845457335242286797566359029072666741,
-# y:3621301112689898657718575625160907319236763714743560759856749092648347440543
+# x: 7326034377997689394939499684117532373892901291291222313559411528397115207574,
+# y:7691438929529285682730387095109708518083855735116088863532756941875767365395
 
 # write ZoKrates DSL code to disk
-path = "pedersen.code"
+path = "pedersen.zok"
 hasher.write_dsl_code(path)
 
 # write witness arguments to disk
