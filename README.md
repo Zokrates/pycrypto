@@ -102,7 +102,7 @@ python demo.py
 
 which should create a file called `zokrates_inputs.txt`.
 
-We can now create a small ZoKrates DSL file which wraps the existing `verifyEddsa` function in the standard library.
+We can now create a small ZoKrates DSL (sig.zok) file which wraps the existing `verifyEddsa` function in the standard library.
 
 ```
 from "ecc/babyjubjubParams" import BabyJubJubParams
@@ -112,15 +112,30 @@ import "ecc/babyjubjubParams.code" as context
 def main(private field[2] R, private field S, field[2] A, u32[8] M0, u32[8] M1) -> (bool):
 
 	BabyJubJubParams context = context()
-	
-    bool isVerified = verifyEddsa(R, S, A, M0, M1, context)
-
+	bool isVerified = verifyEddsa(R, S, A, M0, M1, context)
 	return isVerified
 ````
+Compile the DSL.
+```bash
+zokrates compile --light -i sig.zok
+```
 
-After compiling this file we can now pass our input arguments into witness generation:
+Perform the setup phase.
+```bash
+zokrates setup --light
+```
 
-`cat zokrates_inputs.txt | ./zokrates compute-witness`
+Pass our input arguments into witness generation:
+
+```bash
+cat zokrates_inputs.txt | ./zokrates compute-witness --light --stdin
+```
+
+Prove and Verify
+```bash
+zokrates generate-proof
+zokrates verify
+```
 
 ## CLI Usage
 
