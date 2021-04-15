@@ -116,18 +116,26 @@ def main(private field[2] R, private field S, field[2] A, u32[8] M0, u32[8] M1) 
 	return isVerified
 ````
 Compile the DSL.
-`zokrates compile --light -i sig.zok`
+```bash
+zokrates compile --light -i sig.zok
+```
 
 Perform the setup phase.
-`zokrates setup --light`
+```bash
+zokrates setup --light
+```
 
 Pass our input arguments into witness generation:
 
-`cat zokrates_inputs.txt | ./zokrates compute-witness --light --stdin`
+```bash
+cat zokrates_inputs.txt | ./zokrates compute-witness --light --stdin
+```
 
 Prove and Verify
-`zokrates generate-proof`
-`zokrates verify`
+```bash
+zokrates generate-proof
+zokrates verify
+```
 
 ## CLI Usage
 
