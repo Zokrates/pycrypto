@@ -34,8 +34,8 @@ from collections import namedtuple
 from math import ceil, log2
 from os import urandom
 
-from .babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
-from .field import FQ
+from .jubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
+from .jubjub_field import FQ
 from .utils import to_bytes
 
 
@@ -60,7 +60,7 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
         A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = hash_to_scalar(self.fe, M) % JUBJUB_L  # r = H(k,M) mod L
+        r = hash_to_scalar(self.fe, M) % JUBJUB_L # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
         # Bind the message to the nonce, public key and message
@@ -95,7 +95,7 @@ class PublicKey(namedtuple("_PublicKey", ("p"))):
         lhs = B.mult(S)
 
         hRAM = hash_to_scalar(R, A, M)
-        rhs = R + (A.mult(hRAM))
+        rhs = (R + (A.mult(hRAM)))
 
         return lhs == rhs
 

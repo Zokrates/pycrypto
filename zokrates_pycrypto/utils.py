@@ -2,6 +2,7 @@ from bitstring import BitArray
 
 from .babyjubjub import Point
 from .field import FQ
+from .jubjub_field import FQ as JFQ
 import hashlib
 
 
@@ -13,6 +14,8 @@ def to_bytes(*args):
             result += to_bytes(M.x)
             # result += to_bytes(M.y)
         elif isinstance(M, FQ):
+            result += to_bytes(M.n)
+        elif isinstance(M, JFQ):
             result += to_bytes(M.n)
         elif isinstance(M, int):
             result += M.to_bytes(32, "big")
