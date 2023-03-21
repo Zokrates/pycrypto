@@ -4,7 +4,7 @@ from math import floor, log2
 from struct import pack
 
 from ..babyjubjub import Point, JUBJUB_L, JUBJUB_C
-from ..field import FQ
+from ..field import BN128Field as FQ
 
 WINDOW_SIZE_BITS = 2  # Size of the pre-computed look-up table
 

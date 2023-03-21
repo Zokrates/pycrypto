@@ -3,7 +3,7 @@ import unittest
 from os import urandom
 from random import randint
 
-from zokrates_pycrypto.babyjubjub import Point, FQ
+from zokrates_pycrypto.babyjubjub import Point,BN128Field as FQ
 from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher as P
 
 

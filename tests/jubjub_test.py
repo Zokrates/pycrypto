@@ -2,7 +2,7 @@ import unittest
 
 from os import urandom
 
-from zokrates_pycrypto.jubjub_field import FQ
+from zokrates_pycrypto.field import BLS12_381Field as FQ
 from zokrates_pycrypto.jubjub_eddsa import Point
 from zokrates_pycrypto.jubjub import JUBJUB_E, JUBJUB_C, JUBJUB_L
 
@@ -49,7 +49,7 @@ class TestJubjub(unittest.TestCase):
         B = G.mult(b)
 
         ab = (a.n * b.n) % JUBJUB_E  # 7006652
-        AB = G.mult(ab)
+        AB = G.mult(FQ(ab))
         self.assertEqual(A.mult(b), AB)
         self.assertEqual(B.mult(a), AB)
 

@@ -35,7 +35,7 @@ from math import ceil, log2
 from os import urandom
 
 from .jubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
-from .jubjub_field import FQ
+from .field import BLS12_381Field as FQ
 from .utils import to_bytes
 
 
@@ -47,7 +47,7 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
     @classmethod
     # FIXME: ethsnarks creates keys > 32bytes. Create issue.
     def from_rand(cls):
-        mod = JUBJUB_L
+        mod = JUBJUB_L.n
         # nbytes = ceil(ceil(log2(mod)) / 8) + 1
         nbytes = ceil(ceil(log2(mod)) / 8)
         rand_n = int.from_bytes(urandom(nbytes), "little")
@@ -60,7 +60,7 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
         A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = hash_to_scalar(self.fe, M) % JUBJUB_L # r = H(k,M) mod L
+        r = hash_to_scalar(self.fe, M) % JUBJUB_L.n # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
         # Bind the message to the nonce, public key and message

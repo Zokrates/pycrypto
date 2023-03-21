@@ -1,134 +1,98 @@
 """
 This code is copied from https://github.com/ethereum/py_ecc/blob/master/py_ecc/bn128/bn128_curve.py
 Author is Vitalik Buterin.
-Unfortunately the field modulus is not generic in this implementation, hence we had to copy the file.
+Unfortunately the FIELD modulus is not generic in this implementation, hence we had to copy the file.
 All changes from our side are denoted with #CHANGE.
 """
 
 from __future__ import absolute_import
 
-from typing import cast, List, Tuple, Sequence, Union
+from abc import ABC, abstractmethod
 
 
-# The prime modulus of the field
-# field_modulus = 21888242871839275222246405745257275088696311157297823662689037894645226208583
-field_modulus = (
-    21888242871839275222246405745257275088548364400416034343698204186575808495617
-)
-# CHANGE: Changing the modulus to the embedded curve
+# A class for FIELD elements in FQ. Wrap a number in this class,
+# and it becomes a FIELD element.
+class FQ(ABC):
+    FIELD = int
+    n: int
 
-# See, it's prime!
-assert pow(2, field_modulus, field_modulus) == 2
+    @classmethod
+    @property
+    @abstractmethod
+    def FIELD(cls):
+        raise NotImplementedError
 
-# The modulus of the polynomial in this representation of FQ12
-# FQ12_MODULUS_COEFFS = (82, 0, 0, 0, 0, 0, -18, 0, 0, 0, 0, 0)  # Implied + [1]
-# FQ2_MODULUS_COEFFS = (1, 0)
-# CHANGE: No need for extended  in this case
+    def __init__(self, val: int) -> None:
+        assert isinstance(val, int)
+        self.n = val % self.FIELD
 
-# Extended euclidean algorithm to find modular inverses for
-# integers
-def inv(a: int, n: int) -> int:
-    if a == 0:
-        return 0
-    lm, hm = 1, 0
-    num = a if isinstance(a, int) else a.n
-    low, high = num % n, n
-    while low > 1:
-        r = high // low
-        nm, new = hm - lm * r, high - low * r
-        lm, low, hm, high = nm, new, lm, low
-    return lm % n
+    def __assert_field(self, other: "FQ"):
+        assert isinstance(other, FQ)
+        assert self.FIELD == other.FIELD
 
+    def __int__(self):
+        return self.n
 
-IntOrFQ = Union[int, "FQ"]
+    def __add__(self, other: "FQ") -> "FQ":
+        self.__assert_field(other)
+        return type(self)(self.n + other.n)
 
+    def __mul__(self, other: "FQ") -> "FQ":
+        self.__assert_field(other)
+        return type(self)(self.n * other.n)
 
-# A class for field elements in FQ. Wrap a number in this class,
-# and it becomes a field element.
-class FQ(object):
-    n = None  # type: int
+    def __sub__(self, other: "FQ") -> "FQ":
+        self.__assert_field(other)
+        return type(self)(self.n - other.n)
 
-    def __init__(self, val: IntOrFQ) -> None:
-        if isinstance(val, FQ):
-            self.n = val.n
-        else:
-            self.n = val % field_modulus
-        assert isinstance(self.n, int)
-
-    def __add__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        return FQ((self.n + on) % field_modulus)
-
-    def __mul__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        return FQ((self.n * on) % field_modulus)
-
-    def __rmul__(self, other: IntOrFQ) -> "FQ":
-        return self * other
-
-    def __radd__(self, other: IntOrFQ) -> "FQ":
-        return self + other
-
-    def __rsub__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        return FQ((on - self.n) % field_modulus)
-
-    def __sub__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        return FQ((self.n - on) % field_modulus)
-
-    def __div__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        assert isinstance(on, int)
-        return FQ(self.n * inv(on, field_modulus) % field_modulus)
-
-    def __truediv__(self, other: IntOrFQ) -> "FQ":
-        return self.__div__(other)
-
-    def __rdiv__(self, other: IntOrFQ) -> "FQ":
-        on = other.n if isinstance(other, FQ) else other
-        assert isinstance(on, int), on
-        return FQ(inv(self.n, field_modulus) * on % field_modulus)
-
-    def __rtruediv__(self, other: IntOrFQ) -> "FQ":
-        return self.__rdiv__(other)
+    def __truediv__(self, other: "FQ") -> "FQ":
+        self.__assert_field(other)
+        return self * other.inv()
 
     def __pow__(self, other: int) -> "FQ":
         if other == 0:
-            return FQ(1)
+            return type(self)(1)
         elif other == 1:
-            return FQ(self.n)
+            return self
         elif other % 2 == 0:
             return (self * self) ** (other // 2)
         else:
             return ((self * self) ** int(other // 2)) * self
 
     def __eq__(
-        self, other: IntOrFQ
+        self, other: "FQ"
     ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         if isinstance(other, FQ):
-            return self.n == other.n
+            return self.n == other.n and self.FIELD == other.FIELD
         else:
-            return self.n == other
+            return False
 
     def __ne__(
-        self, other: IntOrFQ
+        self, other: "FQ"
     ) -> bool:  # type:ignore # https://github.com/python/mypy/issues/2783 # noqa: E501
         return not self == other
 
     def __neg__(self) -> "FQ":
-        return FQ(-self.n)
+        return type(self)(-self.n)
 
     def __repr__(self) -> str:
         return repr(self.n)
 
-    def __int__(self) -> int:
-        return self.n
+    def inv(self) -> "FQ":
+        if self.n == 0:
+            return type(self)(0)
+        lm, hm = 1, 0
+        low, high = self.n % self.FIELD, self.FIELD
+        while low > 1:
+            r = high // low
+            nm, new = hm - lm * r, high - low * r
+            lm, low, hm, high = nm, new, lm, low
+        return type(self)(lm)
 
-    @classmethod
-    def one(cls) -> "FQ":
-        return cls(1)
 
-    @classmethod
-    def zero(cls) -> "FQ":
-        return cls(0)
+class BN128Field(FQ):
+    FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+
+
+class BLS12_381Field(FQ):
+    FIELD = 52435875175126190479447740508185965837690552500527637822603658699938581184513

@@ -8,17 +8,17 @@ based on: https://github.com/HarryR/ethsnarks
 """
 
 from collections import namedtuple
-from .jubjub_field import FQ, inv, field_modulus
+from .field import BLS12_381Field as FQ
 from .numbertheory import square_root_mod_prime, SquareRootError
 
 # order of the field
-JUBJUB_Q = field_modulus
+JUBJUB_Q = FQ.FIELD
 # order of the curve
 JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328
-JUBJUB_C = 8  # Cofactor
-JUBJUB_L = 6554484396890773809930967563523245729705921265872317281365359162392183254199 # C*L == E
-JUBJUB_A = -1  # Coefficient A
-JUBJUB_D = 19257038036680949359750312669786877991949435402254120286184196891950884077233  # Coefficient D
+JUBJUB_C = FQ(8)  # Cofactor
+JUBJUB_L = FQ(6554484396890773809930967563523245729705921265872317281365359162392183254199) # C*L == E
+JUBJUB_A = FQ(-1)  # Coefficient A
+JUBJUB_D = FQ(19257038036680949359750312669786877991949435402254120286184196891950884077233)  # Coefficient D
 
 
 def is_negative(v):
@@ -42,8 +42,8 @@ class Point(namedtuple("_Point", ("x", "y"))):
             return other
         (u1, v1) = (self.x, self.y)
         (u2, v2) = (other.x, other.y)
-        u3 = (u1 * v2 + v1 * u2) / (FQ.one() + JUBJUB_D * u1 * u2 * v1 * v2)
-        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (FQ.one() - JUBJUB_D * u1 * u2 * v1 * v2)
+        u3 = (u1 * v2 + v1 * u2) / (FQ(1) + JUBJUB_D * u1 * u2 * v1 * v2)
+        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (FQ(1) - JUBJUB_D * u1 * u2 * v1 * v2)
         return Point(u3, v3)
 
     def mult(self, scalar):
@@ -106,9 +106,9 @@ class Point(namedtuple("_Point", ("x", "y"))):
         assert isinstance(x, FQ)
         xsq = x * x
         ax2 = JUBJUB_A * xsq
-        dxsqm1 = inv(JUBJUB_D * xsq - 1, JUBJUB_Q)
+        dxsqm1 = (JUBJUB_D * xsq - FQ(1)).inv()
         ysq = dxsqm1 * (ax2 - 1)
-        y = FQ(square_root_mod_prime(int(ysq), JUBJUB_Q))
+        y = square_root_mod_prime(int(ysq), JUBJUB_Q)
         return cls(x, y)
 
     @classmethod

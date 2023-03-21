@@ -8,21 +8,21 @@ based on: https://github.com/HarryR/ethsnarks
 """
 
 from collections import namedtuple
-from .field import FQ, inv, field_modulus
+from .field import FQ, BN128Field
 from .numbertheory import square_root_mod_prime, SquareRootError
 
 # order of the field
-JUBJUB_Q = field_modulus
+JUBJUB_Q = BN128Field.FIELD
 # order of the curve
 JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328
-JUBJUB_C = 8  # Cofactor
-JUBJUB_L = JUBJUB_E // JUBJUB_C  # C*L == E
-JUBJUB_A = 168700  # Coefficient A
-JUBJUB_D = 168696  # Coefficient D
+JUBJUB_C = BN128Field(8)  # Cofactor
+JUBJUB_L = BN128Field(JUBJUB_E) / JUBJUB_C  # C*L == E
+JUBJUB_A = BN128Field(168700)  # Coefficient A
+JUBJUB_D = BN128Field(168696)  # Coefficient D
 
 
 def is_negative(v):
-    assert isinstance(v, FQ)
+    assert isinstance(v, FQ), f"given type: {type(v)}"
     return v.n < (-v).n
 
 
@@ -34,7 +34,7 @@ class Point(namedtuple("_Point", ("x", "y"))):
         """
         xsq = self.x * self.x
         ysq = self.y * self.y
-        return (JUBJUB_A * xsq) + ysq == (1 + JUBJUB_D * xsq * ysq)
+        return (JUBJUB_A * xsq) + ysq == (BN128Field(1) + JUBJUB_D * xsq * ysq)
 
     def add(self, other):
         assert isinstance(other, Point)
@@ -42,8 +42,8 @@ class Point(namedtuple("_Point", ("x", "y"))):
             return other
         (u1, v1) = (self.x, self.y)
         (u2, v2) = (other.x, other.y)
-        u3 = (u1 * v2 + v1 * u2) / (FQ.one() + JUBJUB_D * u1 * u2 * v1 * v2)
-        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (FQ.one() - JUBJUB_D * u1 * u2 * v1 * v2)
+        u3 = (u1 * v2 + v1 * u2) / (BN128Field(1) + JUBJUB_D * u1 * u2 * v1 * v2)
+        v3 = (v1 * v2 - JUBJUB_A * u1 * u2) / (BN128Field(1) - JUBJUB_D * u1 * u2 * v1 * v2)
         return Point(u3, v3)
 
     def mult(self, scalar):
@@ -70,11 +70,11 @@ class Point(namedtuple("_Point", ("x", "y"))):
     def generator(cls):
         x = 16540640123574156134436876038791482806971768689494387082833631921987005038935
         y = 20819045374670962167435360035096875258406992893633759881276124905556507972311
-        return Point(FQ(x), FQ(y))
+        return Point(BN128Field(x), BN128Field(y))
 
     @staticmethod
     def infinity():
-        return Point(FQ(0), FQ(1))
+        return Point(BN128Field(0), BN128Field(1))
 
     def __str__(self):
         return "x: {}, y:{}".format(*self)
@@ -103,12 +103,12 @@ class Point(namedtuple("_Point", ("x", "y"))):
         y^2 = ((a * x^2) / (d * x^2 - 1)) - (1 / (d * x^2 - 1))
         For every x coordinate, there are two possible points: (x, y) and (x, -y)
         """
-        assert isinstance(x, FQ)
+        assert isinstance(x, BN128Field)
         xsq = x * x
         ax2 = JUBJUB_A * xsq
-        dxsqm1 = inv(JUBJUB_D * xsq - 1, JUBJUB_Q)
-        ysq = dxsqm1 * (ax2 - 1)
-        y = FQ(square_root_mod_prime(int(ysq), JUBJUB_Q))
+        dxsqm1 = (JUBJUB_D * xsq - BN128Field(1)).inv()
+        ysq = dxsqm1 * (ax2 - BN128Field(1))
+        y = square_root_mod_prime(int(ysq), JUBJUB_Q)
         return cls(x, y)
 
     @classmethod
@@ -118,10 +118,10 @@ class Point(namedtuple("_Point", ("x", "y"))):
         """
         assert isinstance(y, FQ)
         ysq = y * y
-        lhs = ysq - 1
+        lhs = ysq - BN128Field(1)
         rhs = JUBJUB_D * ysq - JUBJUB_A
         xsq = lhs / rhs
-        x = FQ(square_root_mod_prime(int(xsq), JUBJUB_Q))
+        x = BN128Field(square_root_mod_prime(int(xsq), JUBJUB_Q))
         if sign is not None:
             # Used for compress & decompress
             if (x.n & 1) != sign:
@@ -156,12 +156,12 @@ class Point(namedtuple("_Point", ("x", "y"))):
         assert isinstance(entropy, bytes)
         entropy = sha256(entropy).digest()
         entropy_as_int = int.from_bytes(entropy, "big")
-        y = FQ(entropy_as_int)
+        y = BN128Field(entropy_as_int)
         while True:
             try:
                 p = cls.from_y(y)
             except SquareRootError:
-                y += 1
+                y += BN128Field(1)
                 continue
 
             # Multiply point by cofactor, ensures it's on the prime-order subgroup
@@ -205,4 +205,4 @@ class Point(namedtuple("_Point", ("x", "y"))):
         y = int.from_bytes(point, "big")
         sign = y >> 255
         y &= (1 << 255) - 1
-        return cls.from_y(FQ(y), sign)
+        return cls.from_y(BN128Field(y), sign)
