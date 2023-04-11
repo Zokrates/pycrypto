@@ -71,8 +71,8 @@ Let's create a simple demo, called `demo.py`:
 ```python
 import hashlib
 
+from zokrates_pycrypto.curves import BabyJubJub
 from zokrates_pycrypto.eddsa import PrivateKey, PublicKey
-from zokrates_pycrypto.field import FQ
 from zokrates_pycrypto.utils import write_signature_for_zokrates_cli
 
 if __name__ == "__main__":
@@ -82,8 +82,8 @@ if __name__ == "__main__":
 
     # sk = PrivateKey.from_rand()
     # Seeded for debug purpose
-    key = FQ(1997011358982923168928344992199991480689546837621580239342656433234255379025)
-    sk = PrivateKey(key)
+    key = 1997011358982923168928344992199991480689546837621580239342656433234255379025
+    sk = PrivateKey(key, curve=BabyJubJub)
     sig = sk.sign(msg)
 
     pk = PublicKey.from_private(sk)
@@ -112,7 +112,7 @@ import "ecc/babyjubjubParams.code" as context
 def main(private field[2] R, private field S, field[2] A, u32[8] M0, u32[8] M1) -> (bool):
 
 	BabyJubJubParams context = context()
-	
+
     bool isVerified = verifyEddsa(R, S, A, M0, M1, context)
 
 	return isVerified
