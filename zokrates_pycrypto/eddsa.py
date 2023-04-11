@@ -47,7 +47,7 @@ class PrivateKey:
     def __init__(self, sk: int, curve: ABCMeta):
         if curve == BabyJubJub:
             field = BN128Field
-        elif curve == BLS12_381Field:
+        elif curve == JubJub:
             field = BLS12_381Field
         else:
             raise ValueError('Edwardscurve not supported')
@@ -56,7 +56,7 @@ class PrivateKey:
 
     @classmethod
     # FIXME: ethsnarks creates keys > 32bytes. Create issue.
-    def from_rand(cls, sk: int, curve: ABCMeta):
+    def from_rand(cls, curve: ABCMeta):
         mod = curve.JUBJUB_L.n
         # nbytes = ceil(ceil(log2(mod)) / 8) + 1
         nbytes = ceil(ceil(log2(mod)) / 8)
