@@ -1,8 +1,7 @@
 import unittest
 from os import urandom
 
-from zokrates_pycrypto.field import BN128Field
-from zokrates_pycrypto.babyjubjub import Point
+from zokrates_pycrypto.fields import BN128Field
 from zokrates_pycrypto.eddsa import PublicKey, PrivateKey
 
 

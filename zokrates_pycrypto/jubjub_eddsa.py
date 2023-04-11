@@ -34,8 +34,8 @@ from collections import namedtuple
 from math import ceil, log2
 from os import urandom
 
-from .jubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
-from .field import BLS12_381Field as FQ
+from .curves import JubJub
+from .fields import BLS12_381Field as FQ
 from .utils import to_bytes
 
 
@@ -47,7 +47,7 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
     @classmethod
     # FIXME: ethsnarks creates keys > 32bytes. Create issue.
     def from_rand(cls):
-        mod = JUBJUB_L.n
+        mod = JubJub.JUBJUB_L.n
         # nbytes = ceil(ceil(log2(mod)) / 8) + 1
         nbytes = ceil(ceil(log2(mod)) / 8)
         rand_n = int.from_bytes(urandom(nbytes), "little")
@@ -55,12 +55,12 @@ class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
 
     def sign(self, msg, B=None):
         "Returns the signature (R,S) for a given private key and message."
-        B = B or Point.generator()
+        B = B or JubJub.generator()
 
         A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = hash_to_scalar(self.fe, M) % JUBJUB_L.n # r = H(k,M) mod L
+        r = hash_to_scalar(self.fe, M) % JubJub.JUBJUB_L.n # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
         # Bind the message to the nonce, public key and message
@@ -79,14 +79,14 @@ class PublicKey(namedtuple("_PublicKey", ("p"))):
     @classmethod
     def from_private(cls, sk, B=None):
         "Returns public key for a private key. B denotes the group generator"
-        B = B or Point.generator()
+        B = B or JubJub.generator()
         if not isinstance(sk, PrivateKey):
             sk = PrivateKey(sk)
         A = B.mult(sk.fe)
         return cls(A)
 
     def verify(self, sig, msg, B=None):
-        B = B or Point.generator()
+        B = B or JubJub.generator()
 
         R, S = sig
         M = msg
@@ -110,4 +110,4 @@ def hash_to_scalar(*args):
     """
     p = b"".join(to_bytes(_) for _ in args)
     digest = hashlib.sha256(p).digest()
-    return int(digest.hex(), 16) % JUBJUB_E # mod JUBJUB_E here for optimized implementation
+    return int(digest.hex(), 16) % JubJub.JUBJUB_E # mod JUBJUB_E here for optimized implementation

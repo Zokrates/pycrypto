@@ -2,14 +2,17 @@ import unittest
 
 from os import urandom
 
-from zokrates_pycrypto.field import BLS12_381Field as FQ
-from zokrates_pycrypto.jubjub_eddsa import Point
-from zokrates_pycrypto.jubjub import JUBJUB_E, JUBJUB_C, JUBJUB_L
+from zokrates_pycrypto.fields import BLS12_381Field as FQ
+from zokrates_pycrypto.curves import JubJub
+
+
+JUBJUB_C = JubJub.JUBJUB_C
+JUBJUB_E = JubJub.JUBJUB_E
 
 
 class TestJubjub(unittest.TestCase):
     def _point_g(self):
-        return Point.generator()
+        return JubJub.generator()
 
     # Hardcoded for now till we have automatic test generation for ZoKrates test framework
     def _fe_rnd(self):
@@ -25,11 +28,11 @@ class TestJubjub(unittest.TestCase):
     def test_cyclic(self):
         G = self._point_g()
         scalar = 6554484396890773809930967563523245729705921265872317281365359162392183254199
-        self.assertEqual(G.mult(JUBJUB_C).mult(scalar), G.infinity())
+        self.assertEqual(G.mult(JUBJUB_C).mult(scalar), JubJub.infinity())
 
     # TODO: find values for JubJub
     # def test_lower_order_p(self):
-    #     lp = Point(
+    #     lp = JubJub(
     #         FQ(
     #             4342719913949491028786768530115087822524712248835451589697801404893164183326
     #         ),
@@ -38,7 +41,7 @@ class TestJubjub(unittest.TestCase):
     #         ),
     #     )
     #     lp_c = lp.mult(JUBJUB_C)
-    #     self.assertEqual(lp_c, Point.infinity())
+    #     self.assertEqual(lp_c, JubJub.infinity())
     #     lp_l = lp.mult(JUBJUB_L)
     #     self.assertEqual(lp_l, lp)
 
@@ -68,8 +71,8 @@ class TestJubjub(unittest.TestCase):
 
     def test_identities(self):
         G = self._point_g()
-        self.assertEqual(G + Point.infinity(), G)
-        self.assertEqual(G + G.neg(), Point.infinity())
+        self.assertEqual(G + JubJub.infinity(), G)
+        self.assertEqual(G + G.neg(), JubJub.infinity())
 
 
 if __name__ == "__main__":

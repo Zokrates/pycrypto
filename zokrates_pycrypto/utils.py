@@ -1,7 +1,7 @@
 from bitstring import BitArray
 
-from .babyjubjub import Point
-from .field import FQ
+from .curves import EdwardsCurve
+from .fields import FQ
 import hashlib
 
 
@@ -9,7 +9,7 @@ def to_bytes(*args):
     "Returns byte representation for objects used in this module."
     result = b""
     for M in args:
-        if isinstance(M, Point):
+        if isinstance(M, EdwardsCurve):
             result += to_bytes(M.x)
             # result += to_bytes(M.y)
         elif isinstance(M, FQ):
