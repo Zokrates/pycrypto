@@ -122,32 +122,6 @@ After compiling this file we can now pass our input arguments into witness gener
 
 `cat zokrates_inputs.txt | ./zokrates compute-witness`
 
-## CLI Usage
-
-`pycrypto` also provides a simple command-line interface to make it easy to integrate the used crypto primitives into your existing application code.
-
-Some examples:
-
-### Compute SNARK-friendly Pedersen hash
-```bash
-python cli.py hash 3755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d9083755668da8deabd8cafbe1c26cda5a837ed5f832665c5ef94725f6884054d908
-```
-where the first argument denotes the preimage as a hexstring.
-
-### Create and verify an EdDSA signature
-```bash
-python cli.py keygen
-# => 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995
-# Private and public key
-
-python cli.py sig-gen 37e334c51386a5c92152f592ef264b82ad52cf2bbfb6cee1c363e67be97732a 11dd22
-# => 172a1794976d7d0272148c4be3b7ad74fd3a82376cd5995fc4d274e3593c0e6c 24e96be628208a9800336d23bd31318d8a9b95bc9bd8f6f01cae207c05062523
-# R and S element of EdDSA signature
-
-python cli.py sig-verify ab466cd8924518f07172c0f8c695c60f77c11357b461d787ef31864a163f3995 11dd22 172a1794976d7d0272148c4be3b7ad74fd3a82376cd5995fc4d274e3593c0e6c 24e96be628208a9800336d23bd31318d8a9b95bc9bd8f6f01cae207c05062523
-# => True
-```
-
 ## Contributing
 
 We happily welcome contributions. You can either pick an existing issue, or reach out on [Gitter](https://gitter.im/ZoKrates/Lobby).
