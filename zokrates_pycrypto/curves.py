@@ -254,6 +254,7 @@ class EdwardsCurve(ABC):
         return cls.from_y(cls.FIELD_TYPE(y), sign)
 
 
+# values taken from: https://github.com/barryWhiteHat/baby_jubjub
 class BabyJubJub(EdwardsCurve):
     FIELD_TYPE = BN128Field
     # order of the field
@@ -279,12 +280,13 @@ class BabyJubJub(EdwardsCurve):
         return BabyJubJub(BN128Field(0), BN128Field(1))
 
 
+# values taken from: https://github.com/daira/jubjub
 class JubJub(EdwardsCurve):
     FIELD_TYPE = BLS12_381Field
     # order of the field
     JUBJUB_Q = BLS12_381Field.FIELD
     # order of the curve
-    JUBJUB_E = 21888242871839275222246405745257275088614511777268538073601725287587578984328
+    JUBJUB_E = 52435875175126190479447740508185965837647370126978538250922873299137466033592  # C*L == E
     JUBJUB_C = BLS12_381Field(8)  # Cofactor
     JUBJUB_L = BLS12_381Field(6554484396890773809930967563523245729705921265872317281365359162392183254199)
     JUBJUB_A = BLS12_381Field(-1)  # Coefficient A
