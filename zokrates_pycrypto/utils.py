@@ -1,7 +1,7 @@
 from bitstring import BitArray
 
-from .babyjubjub import Point
-from .field import FQ
+from .curves import EdwardsCurve
+from .fields import FQ
 import hashlib
 
 
@@ -9,7 +9,7 @@ def to_bytes(*args):
     "Returns byte representation for objects used in this module."
     result = b""
     for M in args:
-        if isinstance(M, Point):
+        if isinstance(M, EdwardsCurve):
             result += to_bytes(M.x)
             # result += to_bytes(M.y)
         elif isinstance(M, FQ):
@@ -30,7 +30,7 @@ def to_bytes(*args):
 def write_signature_for_zokrates_cli(pk, sig, msg, path):
     "Writes the input arguments for verifyEddsa in the ZoKrates stdlib to file."
     sig_R, sig_S = sig
-    args = [sig_R.x, sig_R.y, sig_S, pk.p.x.n, pk.p.y.n]
+    args = [sig_R.x, sig_R.y, sig_S, pk.point.x.n, pk.point.y.n]
     args = " ".join(map(str, args))
 
     M0 = msg.hex()[:64]
@@ -53,7 +53,7 @@ def pprint_hex_as_256bit(n, h):
 
 def pprint_point(n, p):
     "Takes a variable name and curve point and returns Zokrates assignment statement."
-    x, y = p
+    x, y = p.x, p.y
     return "field[2] {} = [{}, {}] \n".format(n, x, y)
 
 

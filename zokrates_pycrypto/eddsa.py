@@ -33,81 +33,96 @@ import hashlib
 from collections import namedtuple
 from math import ceil, log2
 from os import urandom
+from abc import ABCMeta
 
-from .babyjubjub import JUBJUB_E, JUBJUB_L, JUBJUB_Q, Point
-from .field import FQ
+from .curves import EdwardsCurve, BabyJubJub, JubJub
+from .fields import FQ, BN128Field, BLS12_381Field
 from .utils import to_bytes
 
 
-class PrivateKey(namedtuple("_PrivateKey", ("fe"))):
+class PrivateKey:
     """
     Wraps field element
     """
+    def __init__(self, sk: int, curve: ABCMeta):
+        if curve == BabyJubJub:
+            field = BN128Field
+        elif curve == JubJub:
+            field = BLS12_381Field
+        else:
+            raise ValueError('Edwardscurve not supported')
+        self.curve = curve
+        self.fe = field(sk)
 
     @classmethod
     # FIXME: ethsnarks creates keys > 32bytes. Create issue.
-    def from_rand(cls):
-        mod = JUBJUB_L
+    def from_rand(cls, curve: ABCMeta):
+        mod = curve.JUBJUB_L.n
         # nbytes = ceil(ceil(log2(mod)) / 8) + 1
         nbytes = ceil(ceil(log2(mod)) / 8)
         rand_n = int.from_bytes(urandom(nbytes), "little")
-        return cls(FQ(rand_n))
+        return cls(rand_n, curve)
 
-    def sign(self, msg, B=None):
+    def sign(self, msg, B: EdwardsCurve = None):
         "Returns the signature (R,S) for a given private key and message."
-        B = B or Point.generator()
+        B = B or self.curve.generator()
 
         A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = hash_to_scalar(self.fe, M)  # r = H(k,M) mod L
+        r = A.hash_to_scalar(self.fe, M) % self.curve.JUBJUB_L.n  # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
         # Bind the message to the nonce, public key and message
-        hRAM = hash_to_scalar(R, A, M)
+        hRAM = A.hash_to_scalar(R, A.point, M)
         key_field = self.fe.n
-        S = (r + (key_field * hRAM)) % JUBJUB_E  # r + (H(R,A,M) * k)
+        S = (r + (key_field * hRAM)) # r + (H(R,A,M) * k)
 
         return (R, S)
 
-
-class PublicKey(namedtuple("_PublicKey", ("p"))):
+class PublicKey:
     """
     Wraps edwards point
     """
+    def __init__(self, point: EdwardsCurve):
+        assert issubclass(type(point), EdwardsCurve)
+        self.point = point
+        self.curve = type(point)
 
     @classmethod
-    def from_private(cls, sk, B=None):
+    def from_private(cls, sk: PrivateKey, B=None):
         "Returns public key for a private key. B denotes the group generator"
-        B = B or Point.generator()
-        if not isinstance(sk, PrivateKey):
-            sk = PrivateKey(sk)
+        assert isinstance(sk, PrivateKey) and issubclass(type(sk.fe), FQ)
+        curve = sk.curve
+        if B:
+            assert type(B) == type(curve)
+        B = B or curve.generator()
         A = B.mult(sk.fe)
         return cls(A)
 
     def verify(self, sig, msg, B=None):
-        B = B or Point.generator()
+        B = B or self.curve.generator()
 
         R, S = sig
         M = msg
-        A = self.p
+        A = self.point
 
         lhs = B.mult(S)
 
-        hRAM = hash_to_scalar(R, A, M)
+        hRAM = self.hash_to_scalar(R, A, M)
         rhs = R + (A.mult(hRAM))
 
         return lhs == rhs
 
 
-def hash_to_scalar(*args):
-    """
-    Hash the key and message to create `r`, the blinding factor for this signature.
-    If the same `r` value is used more than once, the key for the signature is revealed.
+    def hash_to_scalar(self, *args):
+        """
+        Hash the key and message to create `r`, the blinding factor for this signature.
+        If the same `r` value is used more than once, the key for the signature is revealed.
 
-    Note that we take the entire 256bit hash digest as input for the scalar multiplication.
-    As the group is only of size JUBJUB_E (<256bit) we allow wrapping around the group modulo.
-    """
-    p = b"".join(to_bytes(_) for _ in args)
-    digest = hashlib.sha256(p).digest()
-    return int(digest.hex(), 16)  # mod JUBJUB_E here for optimized implementation
+        Note that we take the entire 256bit hash digest as input for the scalar multiplication.
+        As the group is only of size JUBJUB_E (<256bit) we allow wrapping around the group modulo.
+        """
+        p = b"".join(to_bytes(_) for _ in args)
+        digest = hashlib.sha256(p).digest()
+        return int(digest.hex(), 16) % self.curve.JUBJUB_E # mod JUBJUB_E here for optimized implementation
