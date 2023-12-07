@@ -55,7 +55,6 @@ class PrivateKey:
         self.fe = field(sk)
 
     @classmethod
-    # FIXME: ethsnarks creates keys > 32bytes. Create issue.
     def from_rand(cls, curve: ABCMeta):
         mod = curve.JUBJUB_L.n
         # nbytes = ceil(ceil(log2(mod)) / 8) + 1
@@ -70,13 +69,13 @@ class PrivateKey:
         A = PublicKey.from_private(self)  # A = kB
 
         M = msg
-        r = A.hash_to_scalar(self.fe, M) % self.curve.JUBJUB_L.n  # r = H(k,M) mod L
+        r = A.hash_to_scalar(self.fe, M)  # r = H(k,M) mod L
         R = B.mult(r)  # R = rB
 
         # Bind the message to the nonce, public key and message
         hRAM = A.hash_to_scalar(R, A.point, M)
         key_field = self.fe.n
-        S = (r + (key_field * hRAM)) # r + (H(R,A,M) * k)
+        S = (r + (key_field * hRAM)) % self.curve.JUBJUB_E # r + (H(R,A,M) * k)
 
         return (R, S)
 
