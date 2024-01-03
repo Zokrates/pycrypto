@@ -2,8 +2,8 @@ import unittest
 
 from os import urandom
 
-from zokrates_pycrypto.fields import BN128Field as FQ
-from zokrates_pycrypto.curves import BabyJubJub
+from znakes.fields import BN128Field as FQ
+from znakes.curves import BabyJubJub
 
 
 class TestJubjub(unittest.TestCase):

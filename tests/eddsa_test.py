@@ -1,8 +1,8 @@
 import unittest
 from os import urandom
 
-from zokrates_pycrypto.curves import BabyJubJub, JubJub
-from zokrates_pycrypto.eddsa import PublicKey, PrivateKey
+from znakes.curves import BabyJubJub, JubJub
+from znakes.eddsa import PublicKey, PrivateKey
 
 
 class TestEdDSA(unittest.TestCase):

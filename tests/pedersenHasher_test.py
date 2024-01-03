@@ -3,8 +3,8 @@ import unittest
 from os import urandom
 from random import randint
 
-from zokrates_pycrypto.curves import BabyJubJub, BN128Field as FQ
-from zokrates_pycrypto.gadgets.pedersenHasher import PedersenHasher as P
+from znakes.curves import BabyJubJub, BN128Field as FQ
+from znakes.gadgets.pedersenHasher import PedersenHasher as P
 
 
 class TestPedersenHash(unittest.TestCase):

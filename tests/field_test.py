@@ -1,6 +1,6 @@
 import unittest
 
-from zokrates_pycrypto.fields import FQ, BN128Field, BLS12_381Field
+from znakes.fields import FQ, BN128Field, BLS12_381Field
 
 
 class TestField(unittest.TestCase):
