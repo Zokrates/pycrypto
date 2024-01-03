@@ -14,7 +14,7 @@ repos:
     -   id: name-tests-test
     -   id: debug-statements
     -   id: requirements-txt-fixer
-    # -   id: flake8
+    -   id: flake8
 -   repo: https://github.com/stefandeml/pre_commit_hooks
     rev: 507a6c4e4bdb5ffc7d35c1227c177e7a9bb86965
     hooks:
