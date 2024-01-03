@@ -3,6 +3,8 @@
 
 # ZnaKes
 
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="170.5" height="20"><linearGradient id="smooth" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="round"><rect width="170.5" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#round)"><rect width="48.5" height="20" fill="#555"/><rect x="48.5" width="122.0" height="20" fill="#007ec6"/><rect width="170.5" height="20" fill="url(#smooth)"/></g><g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110"><text x="252.5" y="150" fill="#010101" fill-opacity=".3" transform="scale(0.1)" textLength="385.0" lengthAdjust="spacing">python</text><text x="252.5" y="140" transform="scale(0.1)" textLength="385.0" lengthAdjust="spacing">python</text><text x="1085.0" y="150" fill="#010101" fill-opacity=".3" transform="scale(0.1)" textLength="1120.0" lengthAdjust="spacing">3.9, 3.10, 3.11, 3.12</text><text x="1085.0" y="140" transform="scale(0.1)" textLength="1120.0" lengthAdjust="spacing">3.9, 3.10, 3.11, 3.12</text><a xlink:href="https://www.python.org/"><rect width="48.5" height="20" fill="rgba(0,0,0,0)"/></a><a xlink:href="https://www.python.org/"><rect x="48.5" width="122.0" height="20" fill="rgba(0,0,0,0)"/></a></g></svg>
+
 A one-stop client library which facilitates the creation of arguments for zero-knowledge Proofs. ZnaKes provide an easy interface to generate zk-friendly crypto primitives necessary in efficient circuits developed with popular tools such as ZoKrates, Circom, Noir and so on...
 
 :warning: _This is a proof-of-concept implementation. It has not been tested for production._
