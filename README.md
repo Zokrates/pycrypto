@@ -4,6 +4,9 @@
 # ZnaKes
 
 ![python-version](./assets/python-version-badge.svg)
+[![License: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![FLAKE8](https://img.shields.io/badge/code%20style-flake8-orange.svg)](https://flake8.pycqa.org/en/3.7.7/)
 
 A one-stop client library which facilitates the creation of arguments for zero-knowledge Proofs. ZnaKes provide an easy interface to generate zk-friendly crypto primitives necessary in efficient circuits developed with popular tools such as ZoKrates, Circom, Noir and so on...
 
