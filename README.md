@@ -4,6 +4,7 @@
 # ZnaKes
 
 ![python-version](./assets/python-version-badge.svg)
+[![codecov](https://codecov.io/gh/ZK-Plus/ZnaKes/graph/badge.svg?token=70C58SFGGK)](https://codecov.io/gh/ZK-Plus/ZnaKes)
 [![License: LGPL v3](https://img.shields.io/badge/license-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![FLAKE8](https://img.shields.io/badge/code%20style-flake8-orange.svg)](https://flake8.pycqa.org/en/3.7.7/)
