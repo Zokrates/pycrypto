@@ -1,10 +1,15 @@
 [build-system]
-requires = ["hatchling"]
+requires = [
+    "hatchling>=1.8.0",
+    "hatch-semver",
+]
 build-backend = "hatchling.build"
 
 [project]
 name = "ZnaKes"
-version = "0.0.1"
+dynamic = [
+  "version"
+]
 authors = [
   { name="alvaro-alonso", email="aa@ise.tu-berlin.de" },
 ]
@@ -23,3 +28,8 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/ZK-Plus/ZnaKes"
 Issues = "https://github.com/ZK-Plus/ZnaKes/issues"
+
+[tool.hatch.version]
+path = "znakes/__about__.py"
+validate-bump = true
+scheme = "semver"
