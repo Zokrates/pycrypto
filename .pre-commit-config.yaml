@@ -1,3 +1,4 @@
+default_stages: [commit]
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.1.0
@@ -20,3 +21,9 @@ repos:
     hooks:
     -   id: detect_tab
     -   id: unittest
+-   repo: https://github.com/lumapps/commit-message-validator
+    rev: af6ccfc300388bbac591fdd52467cee58d5bd918
+    hooks:
+      - id: commit-message-validator
+        stages: [commit-msg]
+        args: [--allow-temp]

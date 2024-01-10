@@ -105,49 +105,38 @@ For most contributions, after your first pull request is accepted and merged, yo
 
 ## :memo: Writing Commit Messages
 
-Please [write a great commit message](https://chris.beams.io/posts/git-commit/).
+Please follow [Angular commit style](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commit-message-format).
 
-1. Separate subject from body with a blank line
-1. Limit the subject line to 50 characters
-1. Capitalize the subject line
-1. Do not end the subject line with a period
-1. Use the imperative mood in the subject line (example: "Fix networking issue")
-1. Wrap the body at about 72 characters
-1. Use the body to explain **why**, *not what and how* (the code shows that!)
-1. If applicable, prefix the title with the relevant component name. (examples: "[Docs] Fix typo", "[Profile] Fix missing avatar")
 
 ```
-[TAG] Short summary of changes in 50 chars or less
+<type>(optional scope): <issue_nr> short summary in present tense
 
-Add a more detailed explanation here, if necessary. Possibly give
-some background about the issue being fixed, etc. The body of the
-commit message can be several paragraphs. Further paragraphs come
-after blank lines and please do proper word-wrap.
+(optional body: explains motivation for the change)
 
-Wrap it to about 72 characters or so. In some contexts,
-the first line is treated as the subject of the commit and the
-rest of the text as the body. The blank line separating the summary
-from the body is critical (unless you omit the body entirely);
-various tools like `log`, `shortlog` and `rebase` can get confused
-if you run the two together.
-
-Explain the problem that this commit is solving. Focus on why you
-are making this change as opposed to how or what. The code explains
-how or what. Reviewers and your future self can read the patch,
-but might not understand why a particular solution was implemented.
-Are there side effects or other unintuitive consequences of this
-change? Here's the place to explain them.
-
- - Bullet points are okay, too
-
- - A hyphen or asterisk should be used for the bullet, preceded
-   by a single space, with blank lines in between
-
-Note the fixed or relevant GitHub issues at the end:
-
-Resolves: #123
-See also: #456, #789
+(optional footer: note BREAKING CHANGES here, and issues to be closed)
 ```
+
+`type` refers to the kind of change made and is usually one of:
+
+    feat: A new feature.
+
+    fix: A bug fix.
+
+    docs: Documentation changes.
+
+    style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc).
+
+    refactor: A code change that neither fixes a bug nor adds a feature.
+
+    perf: A code change that improves performance.
+
+    test: Changes to the test framework.
+
+    build: Changes to the build process or tools.
+
+scope is an optional keyword that provides context for where the change was made. It can be anything relevant to your package or development workflow (e.g., it could be the module or function name affected by the change).
+
+For more information on commit message refer to the [site](https://py-pkgs.org/07-releasing-versioning.html#automatic-version-bumping)
 
 ## :white_check_mark: Code Review
 
