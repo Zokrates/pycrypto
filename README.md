@@ -1,4 +1,5 @@
-<img src="assets/icon.jpg" width="120px" align="right" />
+<!-- TODO: change url to point to `main` branch once merge -->
+<img src="https://raw.githubusercontent.com/ZK-Plus/ZnaKes/8-publish-znakes-package-to-pip/assets/icon.jpg" width="120px" align="right" />
 
 
 # ZnaKes
