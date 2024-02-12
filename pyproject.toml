@@ -1,0 +1,35 @@
+[build-system]
+requires = [
+    "hatchling>=1.8.0",
+    "hatch-semver",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "ZnaKes"
+dynamic = [
+  "version"
+]
+authors = [
+  { name="alvaro-alonso", email="aa@ise.tu-berlin.de" },
+]
+description = "A python client library to easily generate arguments for zero-knowledge proofs (ZKPs)"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Topic :: Education",
+    "Topic :: Security :: Cryptography",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers"
+]
+
+[project.urls]
+Homepage = "https://github.com/ZK-Plus/ZnaKes"
+Issues = "https://github.com/ZK-Plus/ZnaKes/issues"
+
+[tool.hatch.version]
+path = "znakes/__about__.py"
+validate-bump = true
+scheme = "semver"

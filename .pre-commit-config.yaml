@@ -1,3 +1,4 @@
+default_stages: [commit]
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.1.0
@@ -15,14 +16,14 @@ repos:
     -   id: debug-statements
     -   id: requirements-txt-fixer
     -   id: flake8
-        args: [., --count, --select=E901,E999,F821,F822,F823, --show-source, --statistics]
 -   repo: https://github.com/stefandeml/pre_commit_hooks
     rev: 507a6c4e4bdb5ffc7d35c1227c177e7a9bb86965
     hooks:
     -   id: detect_tab
     -   id: unittest
--   repo: https://github.com/ambv/black
-    rev: 19.3b0
+-   repo: https://github.com/lumapps/commit-message-validator
+    rev: af6ccfc300388bbac591fdd52467cee58d5bd918
     hooks:
-    -   id: black
-        language_version: python3.6
+      - id: commit-message-validator
+        stages: [commit-msg]
+        args: [--allow-temp]

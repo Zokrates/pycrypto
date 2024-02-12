@@ -3,8 +3,8 @@ import bitstring
 from math import floor, log2
 from struct import pack
 
-from ..babyjubjub import Point, JUBJUB_L, JUBJUB_C
-from ..field import FQ
+from ..curves import BabyJubJub
+from ..fields import BN128Field as FQ
 
 WINDOW_SIZE_BITS = 2  # Size of the pre-computed look-up table
 
@@ -14,7 +14,7 @@ def pedersen_hash_basepoint(name, i):
     Create a base point for use with the windowed Pedersen
     hash function.
     The name and sequence numbers are used as a unique identifier.
-    Then HashToPoint is run on the name+seq to get the base point.
+    Then HashToEdwardsCurve is run on the name+seq to get the base point.
     """
     if not isinstance(name, bytes):
         if isinstance(name, str):
@@ -26,7 +26,7 @@ def pedersen_hash_basepoint(name, i):
     if len(name) > 28:
         raise ValueError("Name too long")
     data = b"%-28s%04X" % (name, i)
-    return Point.from_hash(data)
+    return BabyJubJub.from_hash(data)
 
 
 def windows_to_dsl_array(windows):
@@ -96,7 +96,7 @@ class PedersenHasher(object):
         if witness:
             return windows_to_dsl_array(windows)
 
-        result = Point.infinity()
+        result = BabyJubJub.infinity()
         for (g, window) in zip(self.generators, windows):
             segment = g * ((window & 0b11) + 1)
             if window > 0b11:
