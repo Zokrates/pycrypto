@@ -2,7 +2,7 @@ appdirs==1.4.3
 astroid==2.2.5
 attrs==19.1.0
 bitstring==3.1.5
-black==19.3b0
+black==24.3.0
 Click==7.0
 entrypoints==0.3
 flake8==3.7.7
